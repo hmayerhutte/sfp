@@ -76,14 +76,13 @@ export default class PicklistEnabler implements DeploymentCustomizer {
 
                     //check for empty picklists on org and fix first deployment issue
                     if (!picklistInOrg?.Metadata?.valueSet?.valueSetDefinition) {
-                    SFPLogger.log(
+                        SFPLogger.log(
                             `Picklist field ${objName}.${picklistName} not in target Org. Skipping`,
                             LoggerLevel.TRACE,
                             logger
                         );
-                    continue;
+                        continue;
                     }
-
 
                     let picklistValueInOrg = [];
 
@@ -105,7 +104,7 @@ export default class PicklistEnabler implements DeploymentCustomizer {
                     let isPickListIdentical = this.arePicklistsIdentical(picklistValueInOrg, picklistValueSource);
 
                     if (!isPickListIdentical) {
-                        this.deployPicklist(picklistInOrg, picklistValueSource, sfpOrg.getConnection(), logger);
+                        await this.deployPicklist(picklistInOrg, picklistValueSource, sfpOrg.getConnection(), logger);
                     } else {
                         SFPLogger.log(
                             `Picklist for custom field ${objName}.${picklistName} is identical to the source.No deployment`,
@@ -122,8 +121,7 @@ export default class PicklistEnabler implements DeploymentCustomizer {
                 };
             }
         } catch (error) {
-            SFPLogger.log(`Unable to process Picklist update due to ${error.message}`, LoggerLevel.WARN, logger);
-            SFPLogger.log(`Error Details : ${error.stack}`, LoggerLevel.TRACE);
+            throw new Error(`Unable to process Picklist update due to ${error.message}`);
         }
     }
 
@@ -160,15 +158,23 @@ export default class PicklistEnabler implements DeploymentCustomizer {
         if (Array.isArray(values)) {
             for (const value of values) {
                 //ignore inactive values from source
-                if(!value?.isActive || value?.isActive == 'true'){
-                picklistValueSet.push({fullName: value['fullName'] ? decodeURI(value['fullName']) : value['fullName'] , default: value.default, label: value['label'] ? decodeURI(value['label']) : value['label']});
+                if (!value?.isActive || value?.isActive == 'true') {
+                    picklistValueSet.push({
+                        fullName: value['fullName'] ? decodeURI(value['fullName']) : value['fullName'],
+                        default: value.default,
+                        label: value['label'] ? decodeURI(value['label']) : value['label'],
+                    });
                 }
             }
         } else if (typeof values === 'object' && 'fullName' in values) {
             //ignore inactive values from source
-            if(!values?.isActive || values?.isActive == 'true'){
-                picklistValueSet.push({fullName: values['fullName'] ? decodeURI(values['fullName']) : values['fullName'] , default: values.default, label: values['label'] ? decodeURI(values['label']) : values['label']});
-                }
+            if (!values?.isActive || values?.isActive == 'true') {
+                picklistValueSet.push({
+                    fullName: values['fullName'] ? decodeURI(values['fullName']) : values['fullName'],
+                    default: values.default,
+                    label: values['label'] ? decodeURI(values['label']) : values['label'],
+                });
+            }
         }
         return picklistValueSet;
     }
@@ -203,13 +209,30 @@ export default class PicklistEnabler implements DeploymentCustomizer {
             FullName: picklistInOrg.FullName,
         };
         SFPLogger.log(`Update picklist for custom field ${picklistToDeploy.FullName}`, LoggerLevel.INFO, logger);
-        try {
-            await conn.tooling.sobject('CustomField').update(picklistToDeploy);
-        } catch (error) {
-            throw new Error(
-                `Unable to update picklist for custom field ${picklistToDeploy.FullName} due to ${error.message}`
-            );
+        let retryCount = 0;
+        const maxRetries = 6;
+        const waitTimeInSeconds = 30;
+        while (retryCount < maxRetries) {
+            try {
+                await conn.tooling.sobject('CustomField').update(picklistToDeploy);
+                return;
+            } catch (error) {
+                if (error.message.includes('background')) {
+                    retryCount++;
+                    SFPLogger.log(
+                        `Background job is beeing executed. Retrying (${retryCount}/${maxRetries}) after ${waitTimeInSeconds} seconds...`,
+                        LoggerLevel.WARN,
+                        logger
+                    );
+                    await new Promise((resolve) => setTimeout(resolve, waitTimeInSeconds * 1000));
+                } else {
+                    throw new Error(
+                        `Unable to update picklist for custom field ${picklistToDeploy.FullName} due to ${error.message}`
+                    );
+                }
+            }
         }
+        throw new Error(`Retry limit exceeded (3 minutes). Unable to process Picklist update.`);
     }
 
     public getName(): string {
