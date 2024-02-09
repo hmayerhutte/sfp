@@ -263,7 +263,7 @@ export default class Release extends SfpCommand {
             );
         }
 
-        SFPLogger.log(COLOR_TIME(`\nElapsed Time: ${new Date(totalElapsedTime).toISOString().substring(11, 8)}`));
+        SFPLogger.log(COLOR_TIME(`\nElapsed Time: ${new Date(totalElapsedTime).toISOString().substring(11,19)}`));
         SFPLogger.printHeaderLine('', COLOR_HEADER, LoggerLevel.INFO);
     }
 
