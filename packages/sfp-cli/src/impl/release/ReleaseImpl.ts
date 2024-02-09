@@ -120,8 +120,8 @@ export default class ReleaseImpl {
                             workItemUrl,
                             showAllArtifacts,
                             releaseDefinition.releaseConfigName
-                                ? path.join(this.props.directory, releaseDefinition.releaseConfigName)
-                                : this.props.directory,
+                                ? path.join(this.props.directory?this.props.directory:"", releaseDefinition.releaseConfigName)
+                                : this.props.directory?this.props.directory:"",
                             false,
                             this.props.branch,
                             false,
