@@ -62,6 +62,11 @@ export default class ValidateAgainstOrg extends SfpCommand {
             description: messages.getMessage('disableParallelTestingFlagDescription'),
             default: false,
         }),
+        runtestagainstsource: Flags.boolean({
+            description: messages.getMessage('runTestAgainstSourceFlagDescription'),
+            default: false,
+            dependsOn: ['basebranch'],
+        }),
         loglevel
     };
 
@@ -93,11 +98,11 @@ export default class ValidateAgainstOrg extends SfpCommand {
         if (this.flags.mode != ValidationMode.FAST_FEEDBACK) {
             SFPLogger.log(COLOR_HEADER(`Coverage Percentage: ${this.flags.coveragepercent}`));
         }
-      
+
 
         SFPLogger.printHeaderLine('',COLOR_HEADER,LoggerLevel.INFO);
 
-        
+
         let validateResult: ValidateResult;
         try {
             let validateProps: ValidateProps = {
@@ -117,6 +122,7 @@ export default class ValidateAgainstOrg extends SfpCommand {
                 disableParallelTestExecution: this.flags.disableparalleltesting,
                 orgInfo: this.flags.orginfo,
                 installExternalDependencies: this.flags.installdeps,
+                runTestOnlyAgainstSource: this.flags.runtestagainstsource
             };
 
 
@@ -132,7 +138,7 @@ export default class ValidateAgainstOrg extends SfpCommand {
         } catch (error) {
             if (error instanceof ValidateError) {
                 validateResult = error.data;
-            } 
+            }
 
             SFPStatsSender.logCount('validate.failed', tags);
 

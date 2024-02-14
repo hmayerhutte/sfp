@@ -92,6 +92,11 @@ export default class Validate extends SfpCommand {
             description: messages.getMessage('disableArtifactUpdateFlagDescription'),
             default: false,
         }),
+        runtestagainstsource: Flags.boolean({
+            description: messages.getMessage('runTestAgainstSourceFlagDescription'),
+            default: false,
+            dependsOn: ['basebranch'],
+        }),
         logsgroupsymbol,
         loglevel
     };
@@ -129,7 +134,7 @@ export default class Validate extends SfpCommand {
         SFPLogger.log(
             COLOR_HEADER(`Dependency Validation: ${this.flags.enabledependencyvalidation ? 'true' : 'false'}`)
         );
-       
+
 
         SFPLogger.printHeaderLine('',COLOR_HEADER,LoggerLevel.INFO);
 
@@ -157,6 +162,7 @@ export default class Validate extends SfpCommand {
                 disableSourcePackageOverride : this.flags.disablesourcepkgoverride,
                 disableParallelTestExecution: this.flags.disableparalleltesting,
                 installExternalDependencies: this.flags.installdeps,
+                runTestOnlyAgainstSource: this.flags.runtestagainstsource,
             };
 
             setReleaseConfigForReleaseBasedModes(this.flags.releaseconfig,validateProps);

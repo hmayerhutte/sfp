@@ -21,6 +21,6 @@
     "orgInfoFlagDescription": "Display info about the org that is used for validation",
     "installDepsFlagDescription":"Install dependencies during fast feedback",
     "disableSourcePackageOverride": "Disables overriding unlocked package installation as source package installation during validate",
-    "disableParallelTestingFlagDescription": "Disable test execution in parallel, this will execute apex tests in serial"
-    
+    "disableParallelTestingFlagDescription": "Disable test execution in parallel, this will execute apex tests in serial",
+    "runTestAgainstSourceFlagDescription": "Enable impact testing, this will only run tests for the components that are impacted by the source changes"
 }

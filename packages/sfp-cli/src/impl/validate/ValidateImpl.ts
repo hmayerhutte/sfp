@@ -53,6 +53,7 @@ import { mapInstalledArtifactstoPkgAndCommits } from "../../utils/FetchArtifacts
 import { ApexTestValidator } from "./ApexTestValidator";
 import OrgInfoDisplayer from "../../ui/OrgInfoDisplayer";
 import FileOutputHandler from "../../outputs/FileOutputHandler";
+import Package from '../../commands/impact/package';
 
 
 export enum ValidateAgainst {
@@ -86,6 +87,8 @@ export interface ValidateProps {
 	orgInfo?: boolean;
 	disableSourcePackageOverride?: boolean;
 	disableParallelTestExecution?: boolean;
+    runTestOnlyAgainstSource?: boolean;
+    impactPackagesAgainstSource?: string[];
 }
 
 export default class ValidateImpl implements PostDeployHook, PreDeployHook {
@@ -100,6 +103,7 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
 
 		let deploymentResult: DeploymentResult;
 		let scratchOrgUsername: string;
+
 		try {
 
 			if (this.props.validateAgainst === ValidateAgainst.PROVIDED_ORG) {
@@ -152,6 +156,16 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
 			let builtSfpPackages = await this.buildChangedSourcePackages(
 				packagesInstalledInOrgMappedToCommits,
 			);
+             //fetch only changes against the source branch when flag is activated
+            if(this.props.runTestOnlyAgainstSource){
+               SFPLogger.log(
+                `👆 Running testclasses only against changes from source branch. Fetching packages...`,
+                LoggerLevel.INFO,
+                new ConsoleLogger(),
+               );
+               this.props.impactPackagesAgainstSource = await Package.run(['--basebranch',this.props.baseBranch]);
+            }
+
 			deploymentResult = await this.deploySourcePackages(scratchOrgUsername);
 
 			if (deploymentResult.failed.length > 0 || deploymentResult.error)
@@ -381,15 +395,15 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
 
 				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`### 💣 Deployment Failed  💣`);
 				let firstPackageFailedToValdiate = deploymentResult.failed[0];
-				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`Package validation failed for  **${firstPackageFailedToValdiate.sfpPackage.packageName}** due to`);  
-				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,"");  
-				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,deploymentResult.error);  
+				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`Package validation failed for  **${firstPackageFailedToValdiate.sfpPackage.packageName}** due to`);
+				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,"");
+				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,deploymentResult.error);
 
-				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`Package that are not validated:`);  
+				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`Package that are not validated:`);
 				deploymentResult.failed.map(
 					(packageInfo, index) => {
 						if (index!=0)
-						 FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`**${packageInfo.sfpPackage.packageName}**`);    
+						 FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`**${packageInfo.sfpPackage.packageName}**`);
 					}
 				);
 			}
@@ -712,6 +726,17 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
 		deployedPackages?: SfpPackage[],
 		devhubUserName?: string,
 	): Promise<{ isToFailDeployment: boolean; message?: string }> {
+        //Run tests only against source changes
+        if(this.props.runTestOnlyAgainstSource && !this.props.impactPackagesAgainstSource?.includes(sfpPackage.packageName)){
+            SFPLogger.log(
+                COLOR_TRACE(
+                    `Package ${sfpPackage.packageName} contains no source changes. Skip running tests`,
+                ),
+                LoggerLevel.TRACE,
+                this.logger,
+            );
+            return { isToFailDeployment: false };
+        }
 		//Trigger Tests after installation of each package
 		if (sfpPackage.packageType && sfpPackage.packageType != PackageType.Data) {
 			if (
