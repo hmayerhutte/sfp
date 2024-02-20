@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import Git from '../../core/git/Git';
 import GitTags from '../../core/git/GitTags';
-import ReleaseDefinitionSchema from '../release/ReleaseDefinitionSchema';
+import ReleaseDefinition from '../release/ReleaseDefinition';
 import FetchArtifactsError from './FetchArtifactsError';
 import * as rimraf from 'rimraf';
 import FetchArtifactSelector from './FetchArtifactSelector';
@@ -22,7 +22,7 @@ export default class FetchImpl {
     }
 
     public async fetchArtifacts(
-        releaseDefinitions: ReleaseDefinitionSchema[]
+        releaseDefinitions: ReleaseDefinition[]
     ): Promise<{
         success: ArtifactVersion[];
         failed: ArtifactVersion[];
@@ -40,10 +40,19 @@ export default class FetchImpl {
         for (const releaseDefinition of releaseDefinitions) {
             //Each release will be downloaded to specific subfolder inside the provided artifact directory
             //As each release is a collection of artifacts
+            
             let revisedArtifactDirectory = path.join(
                 this.artifactDirectory,
                 releaseDefinition.release.replace(/[/\\?%*:|"<>]/g, '-')
             );
+            if(releaseDefinition.releaseConfigName)
+            {
+                revisedArtifactDirectory = path.join(
+                    this.artifactDirectory,
+                    releaseDefinition.releaseConfigName.replace(/[/\\?%*:|"<>]/g, '-'),
+                    releaseDefinition.release.replace(/[/\\?%*:|"<>]/g, '-')
+                );
+            }
 
             rimraf.sync(revisedArtifactDirectory);
             fs.mkdirpSync(revisedArtifactDirectory);

@@ -1,14 +1,14 @@
 import { ConsoleLogger } from '@flxblio/sfp-logger';
 import { Messages } from '@salesforce/core';
 import ReleaseDefinitionGenerator from '../../impl/release/ReleaseDefinitionGenerator';
-import sfpCommand from '../../SfpCommand';
+import SfpCommand from '../../SfpCommand';
 import { Flags } from '@oclif/core';
 import { loglevel } from '../../flags/sfdxflags';
 
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('@flxblio/sfp', 'releasedefinition_generate');
 
-export default class Generate extends sfpCommand {
+export default class Generate extends SfpCommand {
     public static description = messages.getMessage('commandDescription');
 
     public static examples = [
@@ -50,6 +50,10 @@ export default class Generate extends sfpCommand {
             description: messages.getMessage('forcePushFlagDescription'),
             dependsOn: ['push'],
         }),
+        metadata: Flags.string({
+            char: 'm',
+            description: messages.getMessage('metadataFlagDescription'),
+        }),
         loglevel
     };
 
@@ -61,6 +65,7 @@ export default class Generate extends sfpCommand {
                 this.flags.configfile,
                 this.flags.releasename,
                 this.flags.branchname,
+                this.flags.metadata,
                 this.flags.directory,
                 this.flags.nopush,
                 this.flags.forcepush

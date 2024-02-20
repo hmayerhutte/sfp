@@ -1,7 +1,7 @@
 import ArtifactGenerator from './core/artifacts/generators/ArtifactGenerator';
 
 import { EOL } from 'os';
-import sfpCommand from './SfpCommand';
+import SfpCommand from './SfpCommand';
 import { Messages } from '@salesforce/core';
 import fs = require('fs');
 import SFPStatsSender from './core/stats/SFPStatsSender';
@@ -22,7 +22,7 @@ import SFPLogger, {
 } from '@flxblio/sfp-logger';
 import getFormattedTime from './core/utils/GetFormattedTime';
 import SfpPackage from './core/package/SfpPackage';
-import ReleaseConfig from './impl/release/ReleaseConfig';
+import ReleaseConfigLoader from './impl/release/ReleaseConfigLoader';
 import { Flags } from '@oclif/core';
 import { loglevel, orgApiVersionFlagSfdxStyle, targetdevhubusername } from './flags/sfdxflags';
 
@@ -34,7 +34,7 @@ Messages.importMessagesDirectory(__dirname);
 // or any library that is using the messages framework can also be loaded this way.
 const messages = Messages.loadMessages('@flxblio/sfp', 'build');
 
-export default abstract class BuildBase extends sfpCommand {
+export default abstract class BuildBase extends SfpCommand {
     protected static requiresUsername = false;
     protected static requiresDevhubUsername = false;
     protected static requiresProject = true;
@@ -234,8 +234,8 @@ export default abstract class BuildBase extends sfpCommand {
 
     private includeOnlyPackagesAsPerReleaseConfig(releaseConfigFilePath:string,buildProps: BuildProps,logger?:Logger): BuildProps {
         if (releaseConfigFilePath) {
-        let releaseConfig:ReleaseConfig = new ReleaseConfig(logger, releaseConfigFilePath);
-         buildProps.includeOnlyPackages = releaseConfig.getPackagesAsPerReleaseConfig();
+        let releaseConfigLoader:ReleaseConfigLoader = new ReleaseConfigLoader(logger, releaseConfigFilePath);
+         buildProps.includeOnlyPackages = releaseConfigLoader.getPackagesAsPerReleaseConfig();
          printIncludeOnlyPackages(buildProps.includeOnlyPackages);
         }
         return buildProps;
