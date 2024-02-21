@@ -19,7 +19,7 @@ export default class OrgLoginUrl extends SfpCommand {
     protected static requiresDevhubUsername = false;
     protected static requiresProject = false;
 
-    public static examples = ['$ sfp org login url --url-file files/authFile.json'];
+    public static examples = ['$ sfp org:login:url --url-file files/authFile.json'];
 
     public static flags = {
         'url-file': Flags.file({
