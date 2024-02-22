@@ -117,7 +117,7 @@ export default class Release extends SfpCommand {
 
     public async execute() {
         this.validateFlags();
-        ReleaseStreamService.buildJobandBranchId(this.flags.jobid ?? `NO_DEV_HUB_IMPL_${Date.now().toString()}`,this.flags.branchname);
+        ReleaseStreamService.buildJobandBranchId(this.flags.jobid ?? `DEFAULT_JOBID_${Date.now().toString()}`,this.flags.branchname);
 
         let tags = {
             targetOrg: this.flags.targetorg,

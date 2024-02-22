@@ -46,13 +46,27 @@ export class HookService<T> {
                     .catch((error) => {
                         SFPLogger.log(
                             COLOR_TRACE(`An error happens for the webkook callout: ${error}`),
-                            LoggerLevel.INFO
+                            LoggerLevel.TRACE
                         );
                     })
             );
         }
 
-        if (!event['context']['devHubAlias'] && event['context']['jobId'].search('NO_DEV_HUB_IMPL') !== 0) {
+        if(!process.env.SFP_EVENT_DEVHUB){
+            SFPLogger.log(
+                COLOR_TRACE(`Devhub Events are not enabled as SFP_EVENT_DEVHUB is not set`),
+                LoggerLevel.TRACE
+            );
+            return;
+        }
+
+        if (!event['context']['devHubAlias']) {
+            SFPLogger.log(
+                COLOR_TRACE(
+                    `Devhub Events are not enabled as devHubAlias is not set in the context`
+                ),
+                LoggerLevel.TRACE
+            );
             return;
         }
 
