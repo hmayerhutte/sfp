@@ -2,6 +2,7 @@ import SFPLogger, { COLOR_HEADER, COLOR_KEY_MESSAGE, COLOR_WARNING, Logger, Logg
 import SFPStatsSender from '../../stats/SFPStatsSender';
 import SfpPackage, { PackageType, SfpPackageParams } from '../SfpPackage';
 import { PackageCreationParams } from '../SfpPackageBuilder';
+import { BuildStreamService } from '../../eventStream/build';
 
 export abstract class CreatePackage {
     private startTime: number;
@@ -82,20 +83,28 @@ export abstract class CreatePackage {
         if (packageDescriptor.assignPermSetsPreDeployment) {
             if (packageDescriptor.assignPermSetsPreDeployment instanceof Array)
                 this.sfpPackage.assignPermSetsPreDeployment = packageDescriptor.assignPermSetsPreDeployment;
-            else throw new Error("Property 'assignPermSetsPreDeployment' must be of type array");
+            else {
+                BuildStreamService.sendPackageError(this.sfpPackage, `Property 'assignPermSetsPreDeployment' must be of type array`);
+                throw new Error("Property 'assignPermSetsPreDeployment' must be of type array");
+            }
         }
 
         if (packageDescriptor.assignPermSetsPostDeployment) {
             if (packageDescriptor.assignPermSetsPostDeployment instanceof Array)
                 this.sfpPackage.assignPermSetsPostDeployment = packageDescriptor.assignPermSetsPostDeployment;
-            else throw new Error("Property 'assignPermSetsPostDeployment' must be of type array");
+            else {
+                BuildStreamService.sendPackageError(this.sfpPackage, `Property 'assignPermSetsPostDeployment' must be of type array`);
+                throw new Error("Property 'assignPermSetsPostDeployment' must be of type array");
+            }
         }
     }
 
     private async checkWhetherProvidedPackageIsEmpty(packageDirectory: string) {
         if (await this.isEmptyPackage(this.projectDirectory, packageDirectory)) {
-            if (this.packageCreationParams.breakBuildIfEmpty)
+            if (this.packageCreationParams.breakBuildIfEmpty) {
+                BuildStreamService.sendPackageError(this.sfpPackage, `Package directory ${packageDirectory} is empty`);
                 throw new Error(`Package directory ${packageDirectory} is empty`);
+            }
             else this.printEmptyArtifactWarning();
         }
     }

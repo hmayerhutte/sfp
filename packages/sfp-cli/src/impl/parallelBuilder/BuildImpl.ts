@@ -37,6 +37,7 @@ import TransitiveDependencyResolver from "../../core/package/dependencies/Transi
 import GroupConsoleLogs from "../../ui/GroupConsoleLogs";
 import UserDefinedExternalDependency from "../../core/project/UserDefinedExternalDependency";
 import PackageDependencyDisplayer from "../../core/display/PackageDependencyDisplayer";
+import { BuildStreamService } from '../../core/eventStream/build';
 
 const PRIORITY_UNLOCKED_PKG_WITH_DEPENDENCY = 1;
 const PRIORITY_UNLOCKED_PKG_WITHOUT_DEPENDENCY = 3;
@@ -56,6 +57,7 @@ export interface BuildProps {
 	executorcount: number;
 	isBuildAllAsSourcePackages: boolean;
 	branch?: string;
+    jobId?: string; //eventStream
 	currentStage: Stage;
 	baseBranch?: string;
 	diffOptions?: PackageDiffOptions;
@@ -110,6 +112,8 @@ export default class BuildImpl {
 		let git = await Git.initiateRepo(new ConsoleLogger());
 		this.repository_url = await git.getRemoteOriginUrl(this.props.repourl);
 		this.commit_id = await git.getHeadCommit();
+        BuildStreamService.buildProps(this.props);
+        BuildStreamService.buildJobAndOrgId(this.props.jobId, this.sfpOrg?.getConnection().getAuthInfoFields().instanceUrl,this.props.devhubAlias,this.commit_id);
 
 		this.packagesToBeBuilt = this.getPackagesToBeBuilt(
 			this.props.projectDirectory,
@@ -161,6 +165,7 @@ export default class BuildImpl {
 		).begin();
 
 		for await (const pkg of this.packagesToBeBuilt) {
+            BuildStreamService.buildPackageStatus(pkg,'inprogress');
 			let type = this.getPriorityandTypeOfAPackage(
 				this.projectConfig,
 				pkg,
@@ -274,6 +279,7 @@ export default class BuildImpl {
 			chars: ZERO_BORDER_TABLE,
 		});
 		for (const pkg of packagesToBeBuilt.keys()) {
+            BuildStreamService.buildPackageInitialitation(pkg,packagesToBeBuilt.get(pkg).reason, packagesToBeBuilt.get(pkg)?.tag);
 			let item = [
 				pkg,
 				packagesToBeBuilt.get(pkg).reason,
@@ -309,6 +315,7 @@ export default class BuildImpl {
 		});
 		for (const pkg of this.packagesToBeBuilt) {
 			let item = [pkg, "Activated as part of all package build"];
+            BuildStreamService.buildPackageInitialitation(pkg,'Activated as part of all package build','');
 			if (
 				this.isMultiConfigFilesEnabled &&
 				this.props.currentStage == Stage.BUILD
@@ -443,8 +450,24 @@ export default class BuildImpl {
 	private handlePackageError(reason: any, pkg: string): any {
 		SFPLogger.printHeaderLine('', COLOR_HEADER, LoggerLevel.INFO);
 		SFPLogger.log(COLOR_ERROR(`Package Creation Failed for ${pkg}, Here are the details:`));
+        const sfpPackageMain:SfpPackage = {
+			projectDirectory: this.props.projectDirectory, packageDirectory: pkg,
+			workingDirectory: "",
+			mdapiDir: "",
+			destructiveChangesPath: "",
+			resolvedPackageDirectory: "",
+			version: "",
+			packageName: "",
+			versionNumber: "",
+			packageType: "",
+			toJSON() {
+				return this;
+			},
+			package_name: pkg
+		};
 		try {
 			// Append error to log file
+            let errorMessage = typeof reason === 'string' ? reason : reason.message;
 			fs.appendFileSync(`.sfpowerscripts/logs/${pkg}`, reason.message, "utf8");
 			let data = fs.readFileSync(`.sfpowerscripts/logs/${pkg}`, "utf8");
 
@@ -457,6 +480,8 @@ export default class BuildImpl {
 
 
 			SFPLogger.log(data);
+            BuildStreamService.sendPackageError(sfpPackageMain,errorMessage);
+            BuildStreamService.buildPackageErrorList(pkg);
 		} catch (e) {
 			SFPLogger.log(`Unable to display logs for pkg ${pkg}`);
 		}
@@ -613,6 +638,8 @@ export default class BuildImpl {
 	}
 
 	private printPackageDetails(sfpPackage: SfpPackage) {
+        BuildStreamService.buildPackageSuccessList(sfpPackage.packageName);
+		BuildStreamService.sendPackageCompletedInfos(sfpPackage);
 		SFPLogger.log(
 			COLOR_HEADER(
 				`${EOL}${sfpPackage.packageName} package created in ${getFormattedTime(
@@ -733,7 +760,7 @@ export default class BuildImpl {
 		let revisionFrom: string;
 		let revisionTo: string;
 
-		//let package itself create revisions 
+		//let package itself create revisions
 		if (packageType == PackageType.Diff) {
 			revisionFrom = undefined;
 			revisionTo = undefined;

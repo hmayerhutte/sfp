@@ -19,6 +19,7 @@ import SfpPackageBuilder from '../../core/package/SfpPackageBuilder';
 import SfpPackageInquirer from '../../core/package/SfpPackageInquirer';
 import ReleaseDefinitionSorter from './ReleaseDefinitionSorter';
 import FileOutputHandler from '../../outputs/FileOutputHandler';
+import { ReleaseStreamService } from '../../core/eventStream/release';
 
 export interface ReleaseProps {
     releaseDefinitions: ReleaseDefinition[];
@@ -46,7 +47,7 @@ type DeploymentStatus = {
 
 export default class ReleaseImpl {
 
-   
+
 
     constructor(private props: ReleaseProps, private logger?: Logger) {}
 
@@ -81,7 +82,7 @@ export default class ReleaseImpl {
         SFPLogger.log(`Clearing deployment output`, LoggerLevel.TRACE, this.logger);
         FileOutputHandler.getInstance().deleteOutputFile(`deployment-breakdown.md`);
         FileOutputHandler.getInstance().deleteOutputFile(`release-changelog.md`);
-      
+
         let deploymentResults = await this.deployArtifacts(sortedReleaseDefns);
 
         //Get all suceeded deploys
@@ -229,7 +230,7 @@ export default class ReleaseImpl {
         return numberOfCommits;
     }
 
-  
+
 
     private async deployArtifacts(releaseDefinitions: ReleaseDefinition[]): Promise<DeploymentStatus[]> {
         let deploymentResults: { releaseDefinition: ReleaseDefinition; result: DeploymentResult }[] = [];
@@ -281,7 +282,7 @@ export default class ReleaseImpl {
 
         let sfpPackageInquirer: SfpPackageInquirer = new SfpPackageInquirer(sfpPackages, logger);
         let sfdxProjectConfig = sfpPackageInquirer.getLatestProjectConfig();
-       
+
         let releaseDefinitionSorter = new ReleaseDefinitionSorter();
         return releaseDefinitionSorter.sortReleaseDefinitions(releaseDefns, sfdxProjectConfig, logger);
     }
@@ -335,6 +336,7 @@ export default class ReleaseImpl {
                 externalPackage2s.push(dependendentPackage);
             }
             let sfpOrg = await SFPOrg.create({ aliasOrUsername: targetOrg });
+            ReleaseStreamService.buildOrgInfo(sfpOrg.getConnection().getAuthInfoFields().instanceUrl, this.props.devhubUserName);
             let packageCollectionInstaller = new InstallUnlockedPackageCollection(
                 sfpOrg,
                 new ConsoleLogger(),

@@ -23,6 +23,7 @@ import {
     requiredUserNameFlag,
 } from '../flags/sfdxflags';
 import { Flags } from '@oclif/core';
+import { ReleaseStreamService } from './../core/eventStream/release';
 
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('@flxblio/sfp', 'release');
@@ -105,12 +106,18 @@ export default class Release extends SfpCommand {
             description: messages.getMessage('changelogByDomainsFlagDescription'),
             hidden: true,
         }),
+        jobid: Flags.string({
+            char: 'j',
+            description: messages.getMessage('jobIdFlagDescription'),
+            dependsOn: ['devhubalias'],
+        }),
         devhubalias: optionalDevHubFlag,
         loglevel,
     };
 
     public async execute() {
         this.validateFlags();
+        ReleaseStreamService.buildJobandBranchId(this.flags.jobid ?? `NO_DEV_HUB_IMPL_${Date.now().toString()}`,this.flags.branchname);
 
         let tags = {
             targetOrg: this.flags.targetorg,
@@ -172,6 +179,8 @@ export default class Release extends SfpCommand {
                 directory: this.flags.directory,
             };
 
+            ReleaseStreamService.buildProps(props);
+
             let releaseImpl: ReleaseImpl = new ReleaseImpl(props, new ConsoleLogger());
 
             releaseResult = await releaseImpl.exec();
@@ -179,7 +188,11 @@ export default class Release extends SfpCommand {
         } catch (err) {
             if (err instanceof ReleaseError) {
                 releaseResult = err.data;
-            } else SFPLogger.log(err.message);
+                ReleaseStreamService.buildCommandError('Release Error');
+            } else {
+                ReleaseStreamService.buildCommandError(err.message);
+                SFPLogger.log(err.message);
+            }
 
             if (!this.flags.dryrun) SFPStatsSender.logCount('release.failed', tags);
 
@@ -187,6 +200,7 @@ export default class Release extends SfpCommand {
             process.exitCode = 1;
         } finally {
             let totalElapsedTime: number = Date.now() - executionStartTime;
+            ReleaseStreamService.writeArtifacts();
 
             if (releaseResult) {
                 this.printReleaseSummary(releaseResult, totalElapsedTime);
@@ -215,6 +229,8 @@ export default class Release extends SfpCommand {
                 packagesSucceeded += deploymentResults.result.deployed.length;
                 packagesFailed += deploymentResults.result.failed.length;
             }
+
+            ReleaseStreamService.buildStatistik(totalElapsedTime, packagesFailed, packagesSucceeded, packagesScheduled);
 
             SFPStatsSender.logGauge('release.packages.scheduled', packagesScheduled, tags);
             SFPStatsSender.logGauge('release.packages.succeeded', packagesSucceeded, tags);

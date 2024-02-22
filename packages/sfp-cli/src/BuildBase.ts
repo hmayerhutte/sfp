@@ -25,6 +25,7 @@ import SfpPackage from './core/package/SfpPackage';
 import ReleaseConfigLoader from './impl/release/ReleaseConfigLoader';
 import { Flags } from '@oclif/core';
 import { loglevel, orgApiVersionFlagSfdxStyle, targetdevhubusername } from './flags/sfdxflags';
+import { BuildStreamService } from './core/eventStream/build';
 
 
 // Initialize Messages with the current plugin directory
@@ -88,7 +89,11 @@ export default abstract class BuildBase extends SfpCommand {
         }),
         releaseconfig: Flags.string({
             description: messages.getMessage('releaseConfigFileFlagDescription'),
-        })
+        }),
+        jobid: Flags.string({
+            char: 'j',
+            description: messages.getMessage('jobIdFlagDescription'),
+        }),
     };
 
     public async execute() {
@@ -105,7 +110,7 @@ export default abstract class BuildBase extends SfpCommand {
             stage: this.getStage(),
             branch: flags.branch,
         };
-        
+
         try {
             const artifactDirectory: string = flags.artifactdir;
             const diffcheck: boolean = flags.diffcheck;
@@ -147,6 +152,7 @@ export default abstract class BuildBase extends SfpCommand {
                 SFPLogger.log(`${EOL}${EOL}`);
                 SFPLogger.log(COLOR_INFO('No packages found to be built.. Exiting.. '));
                 SFPLogger.printHeaderLine('',COLOR_HEADER,LoggerLevel.INFO);
+                BuildStreamService.buildStatus('failed','No packages to be found to be built')
                 return;
             }
 
@@ -164,14 +170,17 @@ export default abstract class BuildBase extends SfpCommand {
 
             totalElapsedTime = Date.now() - executionStartTime;
 
-            if (artifactCreationErrors.length > 0 || buildExecResult.failedPackages.length > 0)
+            if (artifactCreationErrors.length > 0 || buildExecResult.failedPackages.length > 0){
+                BuildStreamService.buildStatus('failed','Build Failed');
                 throw new Error('Build Failed');
+            }
 
             SFPStatsSender.logGauge('build.duration', Date.now() - executionStartTime, tags);
 
             SFPStatsSender.logCount('build.succeeded', tags);
         } catch (error) {
             SFPStatsSender.logCount('build.failed', tags);
+            BuildStreamService.buildStatus('failed',error.toString());
             SFPLogger.log(COLOR_ERROR(error));
             process.exitCode = 1;
         } finally {
@@ -226,8 +235,10 @@ export default abstract class BuildBase extends SfpCommand {
                 buildResult['summary'].elapsed_time = totalElapsedTime;
                 buildResult['summary'].succeeded = buildExecResult.generatedPackages.length;
                 buildResult['summary'].failed = buildExecResult.failedPackages.length;
+                BuildStreamService.sendStatistics(buildResult['summary'].scheduled_packages,buildResult['summary'].succeeded,buildResult['summary'].failed,buildResult['summary'].elapsed_time);
 
                 fs.writeFileSync(`buildResult.json`, JSON.stringify(buildResult, null, 4));
+                BuildStreamService.writeArtifacts();
             }
         }
     }
@@ -236,6 +247,7 @@ export default abstract class BuildBase extends SfpCommand {
         if (releaseConfigFilePath) {
         let releaseConfigLoader:ReleaseConfigLoader = new ReleaseConfigLoader(logger, releaseConfigFilePath);
          buildProps.includeOnlyPackages = releaseConfigLoader.getPackagesAsPerReleaseConfig();
+         BuildStreamService.buildReleaseConfig(buildProps.includeOnlyPackages);
          printIncludeOnlyPackages(buildProps.includeOnlyPackages);
         }
         return buildProps;
