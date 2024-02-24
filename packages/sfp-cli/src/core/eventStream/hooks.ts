@@ -8,11 +8,13 @@ import 'dotenv/config';
 export class HookService<T> {
     private static instance: HookService<any>;
     private limiter: Bottleneck;
+    private limiter2: Bottleneck;
 
     public static getInstance(): HookService<any> {
         if (!HookService.instance) {
             HookService.instance = new HookService();
-            this.instance.limiter = new Bottleneck({ concurrency: 1 });
+            this.instance.limiter = new Bottleneck({ concurrency: 1 ,minTime: 300});
+            this.instance.limiter2 = new Bottleneck({ concurrency: 1 , minTime: 300});
         }
         return HookService.instance;
     }
@@ -33,7 +35,7 @@ export class HookService<T> {
             this.limiter.schedule(() =>
                 axiosInstance
                     .post(``, JSON.stringify(payload))
-                    .then(async (commitResponse) => {
+                    .then((commitResponse) => {
                         if (commitResponse.status === 201) {
                             SFPLogger.log(COLOR_TRACE(`Commit successful.`), LoggerLevel.TRACE);
                         } else {
@@ -93,13 +95,13 @@ export class HookService<T> {
             },
         ];
 
-        this.limiter.schedule(() =>
+        this.limiter2.schedule(() =>
             connection
                 .sobject('SfPowerscriptsEvent__c')
                 .upsert(sfpEvent, 'Name')
                 .then(async (upsertResult) => {
                     SFPLogger.log(COLOR_TRACE('Upsert successful:', upsertResult), LoggerLevel.TRACE);
-                })
+                                })
                 .catch((error) => {
                     SFPLogger.log(COLOR_TRACE('Error:', error), LoggerLevel.TRACE);
                     SFPLogger.log(

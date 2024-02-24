@@ -23,6 +23,7 @@ import {
     requiredUserNameFlag,
 } from '../../flags/sfdxflags';
 import { Flags } from '@oclif/core';
+import { ReleaseStreamService } from './../../core/eventStream/release';
 
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('@flxblio/sfp', 'release');
@@ -105,12 +106,18 @@ export default class Release extends SfpCommand {
             description: messages.getMessage('changelogByDomainsFlagDescription'),
             hidden: true,
         }),
+        jobid: Flags.string({
+            char: 'j',
+            description: messages.getMessage('jobIdFlagDescription'),
+            dependsOn: ['devhubalias'],
+        }),
         devhubalias: optionalDevHubFlag,
         loglevel,
     };
 
     public async execute() {
         this.validateFlags();
+        ReleaseStreamService.buildJobandBranchId(this.flags.jobid ?? `DEFAULT_JOBID_${Date.now().toString()}`,this.flags.branchname);
 
         let tags = {
             targetOrg: this.flags.targetorg,

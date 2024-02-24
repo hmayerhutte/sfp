@@ -23,6 +23,7 @@ import { AnalyzerRegistry } from './analyser/AnalyzerRegistry';
 import { ComponentSet } from '@salesforce/source-deploy-retrieve';
 import CreateDiffPackageImp from './packageCreators/CreateDiffPackageImpl';
 import { COLOR_WARNING } from '@flxblio/sfp-logger';
+import { BuildStreamService } from '../eventStream/build';
 
 export default class SfpPackageBuilder {
     public static async buildPackageFromProjectDirectory(
@@ -39,6 +40,8 @@ export default class SfpPackageBuilder {
             // Clone the projectConfig to prevent mutation
             projectConfig = lodash.cloneDeep(projectConfig);
         }
+
+        BuildStreamService.buildPackageStatus(sfdx_package,'inprogress');
 
         let propertyFetchers: PropertyFetcher[] = [
             new AssignPermissionSetFetcher(),
@@ -171,7 +174,7 @@ export default class SfpPackageBuilder {
                 break;
             case PackageType.Diff:
                 packageCreationParams.revisionFrom = params.revisionFrom;
-                packageCreationParams.revisionTo = params.revisionTo; 
+                packageCreationParams.revisionTo = params.revisionTo;
                 createPackage = new CreateDiffPackageImp(
                     sfpPackage.workingDirectory,
                     sfpPackage,
@@ -230,7 +233,7 @@ export default class SfpPackageBuilder {
         return sfpPackage;
     }
 
-  
+
 
     private static isAllTestsToBeTriggered(sfpPackage: SfpPackage, logger: Logger) {
         if (

@@ -2,6 +2,7 @@ import fs from 'fs';
 import { PROCESSNAME, PATH, EVENTTYPE, BuildProps, BuildHookSchema, BuildPackageDependencies } from './types';
 import SfpPackage from '../package/SfpPackage';
 import { HookService } from './hooks';
+import _ from 'lodash';
 
 export class BuildStreamService {
     public static buildPackageInitialitation(pck: string, reason: string, tag: string): void {
@@ -11,7 +12,8 @@ export class BuildStreamService {
     public static sendPackageError(sfpPackage: SfpPackage, message: string, isEvent?: boolean): void {
         const file = BuildLoggerBuilder.getInstance().buildPackageError(sfpPackage, message).build();
         if (!isEvent) {
-        HookService.getInstance().logEvent(file.payload.events[sfpPackage.package_name]);
+        const clondedPayload = _.cloneDeep(file.payload.events[sfpPackage.package_name]);
+        HookService.getInstance().logEvent(clondedPayload);
         }
     }
 
@@ -33,7 +35,8 @@ export class BuildStreamService {
 
     public static sendPackageCompletedInfos(sfpPackage: SfpPackage): void {
         const file = BuildLoggerBuilder.getInstance().buildPackageCompletedInfos(sfpPackage).build();
-        HookService.getInstance().logEvent(file.payload.events[sfpPackage.package_name]);
+        const clondedPayload = _.cloneDeep(file.payload.events[sfpPackage.package_name]);
+        HookService.getInstance().logEvent(clondedPayload);
     }
 
     public static buildPackageDependencies(pck: string, dependencies: BuildPackageDependencies): void {
@@ -153,7 +156,8 @@ class BuildLoggerBuilder {
                 packageDependencies: [],
             },
         };
-        HookService.getInstance().logEvent(this.file.payload.events[pck]);
+        const clondedPayload = _.cloneDeep(this.file.payload.events[pck]);
+        HookService.getInstance().logEvent(clondedPayload);
         return this;
     }
 
@@ -258,8 +262,9 @@ class BuildLoggerBuilder {
             this.file.payload.events[pck].metadata.elapsedTime = elapsedTime;
         }
         if(status === 'inprogress') { //### lifecycle hooks ###
-        HookService.getInstance().logEvent(this.file.payload.events[pck]);
-        }
+        const clondedPayload = _.cloneDeep(this.file.payload.events[pck]);
+        HookService.getInstance().logEvent(clondedPayload);
+                }
         return this;
     }
 

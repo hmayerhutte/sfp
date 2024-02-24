@@ -165,7 +165,6 @@ export default class BuildImpl {
 		).begin();
 
 		for await (const pkg of this.packagesToBeBuilt) {
-            BuildStreamService.buildPackageStatus(pkg,'inprogress');
 			let type = this.getPriorityandTypeOfAPackage(
 				this.projectConfig,
 				pkg,
@@ -219,7 +218,7 @@ export default class BuildImpl {
 				this.projectConfig,
 				pkg,
 			);
-			let packagePromise: Promise<SfpPackage> = this.limiter
+            let packagePromise: Promise<SfpPackage> = this.limiter
 				.schedule({ id: pkg, priority: priority }, () =>
 					this.createPackage(type, pkg, this.props.isBuildAllAsSourcePackages),
 				)
@@ -540,7 +539,7 @@ export default class BuildImpl {
 					this.projectConfig,
 					pkg,
 				);
-				let packagePromise: Promise<SfpPackage> = this.limiter
+                let packagePromise: Promise<SfpPackage> = this.limiter
 					.schedule({ id: pkg, priority: priority }, () =>
 						this.createPackage(
 							type,
