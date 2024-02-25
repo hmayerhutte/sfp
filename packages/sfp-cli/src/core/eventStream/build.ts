@@ -3,6 +3,7 @@ import { PROCESSNAME, PATH, EVENTTYPE, BuildProps, BuildHookSchema, BuildPackage
 import SfpPackage from '../package/SfpPackage';
 import { HookService } from './hooks';
 import _ from 'lodash';
+import { BuildJobMarkdown } from '../eventMarkdown/build';
 
 export class BuildStreamService {
     public static buildPackageInitialitation(pck: string, reason: string, tag: string): void {
@@ -73,6 +74,7 @@ export class BuildStreamService {
             fs.mkdirSync(PATH.DEFAULT);
         }
             fs.writeFileSync(PATH.BUILD, JSON.stringify(file, null, 4), 'utf-8');
+            BuildJobMarkdown.run(file);
     }
 }
 
