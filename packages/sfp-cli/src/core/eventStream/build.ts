@@ -72,10 +72,7 @@ export class BuildStreamService {
         if (!fs.existsSync(PATH.DEFAULT)) {
             fs.mkdirSync(PATH.DEFAULT);
         }
-        if (!fs.existsSync(PATH.BUILD)) {
-            // File doesn't exist, create it
             fs.writeFileSync(PATH.BUILD, JSON.stringify(file, null, 4), 'utf-8');
-        }
     }
 }
 

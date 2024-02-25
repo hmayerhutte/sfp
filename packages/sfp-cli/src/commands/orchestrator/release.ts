@@ -179,6 +179,8 @@ export default class Release extends SfpCommand {
                 directory: this.flags.directory,
             };
 
+            ReleaseStreamService.buildProps(props);
+
             let releaseImpl: ReleaseImpl = new ReleaseImpl(props, new ConsoleLogger());
 
             releaseResult = await releaseImpl.exec();
@@ -186,7 +188,11 @@ export default class Release extends SfpCommand {
         } catch (err) {
             if (err instanceof ReleaseError) {
                 releaseResult = err.data;
-            } else SFPLogger.log(err.message);
+                ReleaseStreamService.buildCommandError('Release Error');
+            } else {
+                SFPLogger.log(err.message);
+                ReleaseStreamService.buildCommandError(err.message);
+            }
 
             if (!this.flags.dryrun) SFPStatsSender.logCount('release.failed', tags);
 
@@ -194,6 +200,7 @@ export default class Release extends SfpCommand {
             process.exitCode = 1;
         } finally {
             let totalElapsedTime: number = Date.now() - executionStartTime;
+            ReleaseStreamService.writeArtifacts();
 
             if (releaseResult) {
                 this.printReleaseSummary(releaseResult, totalElapsedTime);
