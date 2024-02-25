@@ -2,6 +2,7 @@ import { PROCESSNAME,PATH,EVENTTYPE, ReleaseHookSchema, ReleaseProps, ReleaseDep
 import { HookService } from './hooks';
 import SfpPackage from '../package/SfpPackage';
 import fs from 'fs';
+import { ReleaseJobMarkdown } from '../eventMarkdown/release';
 
 export class ReleaseStreamService {
     public static buildPackageInitialitation(
@@ -90,6 +91,7 @@ export class ReleaseStreamService {
             fs.mkdirSync(PATH.DEFAULT);
         }
             fs.writeFileSync(PATH.RELEASE, JSON.stringify(file, null, 4), 'utf-8');
+            ReleaseJobMarkdown.run(file);
     }
 }
 

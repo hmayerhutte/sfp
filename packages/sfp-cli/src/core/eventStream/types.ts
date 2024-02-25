@@ -14,7 +14,8 @@ export enum PATH {
     BUILD = ".sfpowerscripts/eventStreamBuild.json",
     VALIDATE = ".sfpowerscripts/eventStreamValidate.json",
     RELEASE = ".sfpowerscripts/eventStreamRelease.json",
-    BUILD_MD = ".sfpowerscripts/eventStreamBuild.md"
+    BUILD_MD = ".sfpowerscripts/eventStreamBuild.md",
+    RELEASE_MD = ".sfpowerscripts/eventStreamRelease.md"
 }
 
 export enum EVENTTYPE {
