@@ -1,7 +1,7 @@
 {
     "name": "@flxblio/sfp",
     "description": "Flxbl Toolkit",
-    "version": "34.2.0",
+    "version": "36.0.6",
     "license": "MIT",
     "author": "flxblio",
     "release": "February 24",
@@ -103,12 +103,10 @@
     ],
     "oclif": {
         "commands": "./lib/commands",
+        "topicSeparator": " ",
         "topics": {
             "releasedefinition": {
                 "description": "Commands around release definition"
-            },
-            "orchestrator": {
-                "description": "[Deprecated] Orchestrate packages from a monorepo through its lifecycle, driven by descriptors in your sfdx-project.json"
             },
             "pool": {
                 "description": "Manage the pooled orgs created by the sfp orchestrator in prepare stage"
@@ -116,22 +114,8 @@
             "changelog": {
                 "description": "Track your artifacts & user stories as they progress through different environments, with release changelogs"
             },
-            "package": {
-                "description": "Work with various types of packages such as unlocked/source/data/delta individually",
-                "subtopics": {
-                    "data": {
-                        "description": "Commands to create and install data packages (sfdmu)"
-                    },
-                    "unlocked": {
-                        "description": "Commands to create and install unlocked packages"
-                    },
-                    "source": {
-                        "description": "Commands to create and install sfp source packages"
-                    }
-                }
-            },
             "impact": {
-                "description": "Figures out the impact of  various components of sfp",
+                "description": "Figures out the impact of a change to various components of your project",
                 "external": true
             },
             "analyze": {

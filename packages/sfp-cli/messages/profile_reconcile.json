@@ -1,5 +1,5 @@
 {
-    "commandDescription": "This command is used in the lower environments such as ScratchOrgs , Development / System Testing Sandboxes, where a retrieved profile from production has to be cleaned up only for the metadata that is contained in the environment or  base it only as per the metadata that is contained in the packaging directory.",
+    "commandDescription": "Reconcile profiles in the local directory only with the attributes that are available in the target org",
     "folderFlagDescription": "path to the folder which contains the profiles to be reconciled,if project contain multiple package directories, please provide a comma seperated list, if omitted, all the package directories will be checked for profiles",
     "nameFlagDescription": "list of profiles to be reconciled. If ommited, all the profiles components will be reconciled.",
     "destFolderFlagDescription": " the destination folder for reconciled profiles, if omitted existing profiles will be reconciled and will be rewritten in the current location",
