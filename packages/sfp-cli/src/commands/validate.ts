@@ -9,6 +9,7 @@ import * as fs from 'fs-extra';
 import { arrayFlagSfdxStyle, loglevel, logsgroupsymbol, targetdevhubusername } from '../flags/sfdxflags';
 import { Flags } from '@oclif/core';
 import { LoggerLevel } from '@flxblio/sfp-logger';
+import { ValidateStreamService } from './../core/eventStream/validate';
 
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('@flxblio/sfp', 'validate');
@@ -88,6 +89,10 @@ export default class Validate extends SfpCommand {
             },
             default: false,
         }),
+        jobid: Flags.string({
+            char: 'j',
+            description: messages.getMessage('jobIdFlagDescription')
+        }),
         logsgroupsymbol,
         loglevel
     };
@@ -125,8 +130,8 @@ export default class Validate extends SfpCommand {
         if (this.flags.mode != ValidationMode.FAST_FEEDBACK) {
             SFPLogger.log(COLOR_HEADER(`Coverage Percentage: ${this.flags.coveragepercent}`));
         }
-       
-       
+
+
 
         SFPLogger.printHeaderLine('',COLOR_HEADER,LoggerLevel.INFO);
 
@@ -150,6 +155,7 @@ export default class Validate extends SfpCommand {
                 baseBranch: this.flags.basebranch,
                 diffcheck: !this.flags.disablediffcheck,
                 disableArtifactCommit: true,
+                jobId: this.flags.jobid ?? `DEFAULT_JOBID_${Date.now().toString()}`,
                 orgInfo: this.flags.orginfo,
                 disableSourcePackageOverride : this.flags.disablesourcepkgoverride,
                 disableParallelTestExecution: this.flags.disableparalleltesting,
@@ -157,6 +163,9 @@ export default class Validate extends SfpCommand {
             };
 
             setReleaseConfigForReleaseBasedModes(this.flags.releaseconfig,validateProps);
+            ValidateStreamService.buildProps(validateProps);
+            ValidateStreamService.buildJobId(validateProps.jobId);
+
 
             let validateImpl: ValidateImpl = new ValidateImpl(validateProps);
 
@@ -166,7 +175,11 @@ export default class Validate extends SfpCommand {
         } catch (error) {
             if (error instanceof ValidateError) {
                 validateResult = error.data;
-            } else SFPLogger.log(error.message);
+                ValidateStreamService.buildCommandError('Validate Error');
+            } else {
+                SFPLogger.log(error.message)
+                ValidateStreamService.buildCommandError(error.message);
+            };
 
             SFPStatsSender.logCount('validate.failed', tags);
 
@@ -196,7 +209,11 @@ export default class Validate extends SfpCommand {
                     validateResult.deploymentResult?.failed?.length,
                     tags
                 );
+                ValidateStreamService.buildStatistik(totalElapsedTime, validateResult.deploymentResult?.failed?.length, validateResult.deploymentResult?.deployed?.length, validateResult.deploymentResult?.scheduled)
             }
+
+            ValidateStreamService.cloneReleaseAndBuild();
+            ValidateStreamService.writeArtifacts();
         }
 
         function setReleaseConfigForReleaseBasedModes(releaseConfigPaths: string[], validateProps: ValidateProps) {
@@ -205,13 +222,13 @@ export default class Validate extends SfpCommand {
                 if (!releaseConfigPaths || releaseConfigPaths.length === 0) {
                     throw new Error(`Release config paths are required when using validation by release config`);
                 }
-        
+
                 const validPaths = releaseConfigPaths.filter(path => fs.existsSync(path));
-        
+
                 if (validPaths.length === 0) {
                     throw new Error(`None of the provided release config paths exist, please check the paths: ${releaseConfigPaths.join(', ')}`);
                 }
-        
+
                 // Assuming validateProps can handle an array of paths; adjust as per your implementation
                 validateProps.releaseConfigPaths = validPaths;
             }

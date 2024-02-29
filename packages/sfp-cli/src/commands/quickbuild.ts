@@ -28,6 +28,7 @@ export default class QuickBuild extends BuildBase {
             buildNumber: this.flags.buildnumber,
             executorcount: this.flags.executorcount,
             branch: this.flags.branch,
+            jobId: this.flags.jobid ?? `DEFAULT_JOBID_${Date.now().toString()}`, //eventStream,
             currentStage: Stage.QUICKBUILD,
             isBuildAllAsSourcePackages: false,
             diffOptions: {

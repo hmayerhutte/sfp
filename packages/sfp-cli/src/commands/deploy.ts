@@ -14,6 +14,7 @@ import getFormattedTime from '../core/utils/GetFormattedTime';
 import { Flags } from '@oclif/core';
 import { arrayFlagSfdxStyle, loglevel, logsgroupsymbol, requiredUserNameFlag } from '../flags/sfdxflags';
 import { LoggerLevel } from '@flxblio/sfp-logger';
+import { DeployStreamService } from './../core/eventStream/deploy';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -58,7 +59,7 @@ export default class Deploy extends SfpCommand {
         }),
         allowunpromotedpackages: Flags.boolean({
             description: messages.getMessage('allowUnpromotedPackagesFlagDescription'),
-            deprecated: { 
+            deprecated: {
                 message: '--allowunpromotedpackages is deprecated, All packages are allowed'
             },
             hidden: true,
@@ -72,6 +73,10 @@ export default class Deploy extends SfpCommand {
         }),
         enablesourcetracking: Flags.boolean({
             description: messages.getMessage('enableSourceTrackingFlagDescription'),
+        }),
+        jobid: Flags.string({
+            char: 'j',
+            description: messages.getMessage('jobIdFlagDescription'),
         }),
         logsgroupsymbol,
         loglevel
@@ -108,10 +113,14 @@ export default class Deploy extends SfpCommand {
             skipIfPackageInstalled: this.flags.skipifalreadyinstalled,
             logsGroupSymbol: this.flags.logsgroupsymbol,
             currentStage: Stage.DEPLOY,
+            jobId: this.flags.jobid ?? `DEFAULT_JOBID_${Date.now().toString()}`,
             baselineOrg: this.flags.baselineorg,
             isRetryOnFailure: this.flags.retryonfailure,
             releaseConfigPath: this.flags.releaseconfig,
         };
+
+        DeployStreamService.buildProps(deployProps);
+        DeployStreamService.buildJobId(this.flags.jobid ?? `DEFAULT_JOBID_${Date.now().toString()}`);
 
         try {
             let deployImpl: DeployImpl = new DeployImpl(deployProps);
@@ -123,11 +132,13 @@ export default class Deploy extends SfpCommand {
             }
         } catch (error) {
             SFPLogger.log(COLOR_ERROR(error));
+            const errorMessage:string = error?.message ? error.message.toString() : `Deployment runs on error`;
+            DeployStreamService.buildCommandError(errorMessage);
             process.exitCode = 1;
         } finally {
             let totalElapsedTime: number = Date.now() - executionStartTime;
 
-        
+
             SFPLogger.printHeaderLine('',COLOR_HEADER,LoggerLevel.INFO);
             SFPLogger.log(
                 COLOR_SUCCESS(
@@ -147,7 +158,7 @@ export default class Deploy extends SfpCommand {
             }
             SFPLogger.printHeaderLine('',COLOR_HEADER,LoggerLevel.INFO);
 
-          
+
             SFPStatsSender.logCount('deploy.scheduled', tags);
 
             SFPStatsSender.logGauge('deploy.packages.scheduled', deploymentResult.scheduled, tags);
@@ -157,6 +168,11 @@ export default class Deploy extends SfpCommand {
             SFPStatsSender.logGauge('deploy.succeeded.packages', deploymentResult.deployed.length, tags);
 
             SFPStatsSender.logGauge('deploy.failed.packages', deploymentResult.failed.length, tags);
+
+            DeployStreamService.buildStatistik(totalElapsedTime, deploymentResult.failed.length, deploymentResult.deployed.length, deploymentResult.scheduled);
+
+            DeployStreamService.cloneRelease();
+            DeployStreamService.writeArtifacts();
 
             if (deploymentResult.failed.length > 0) {
                 SFPStatsSender.logCount('deploy.failed', tags);

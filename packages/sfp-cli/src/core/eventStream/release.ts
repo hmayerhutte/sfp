@@ -1,4 +1,5 @@
-import { PROCESSNAME,PATH,EVENTTYPE, ReleaseHookSchema, ReleaseProps, ReleaseDeployError, ReleaseTestResult, ReleaseTestCoverage } from './types';
+import { PROCESSNAME,PATH,EVENTTYPE,EVENTSTATUS,ReleaseHookSchema, ReleaseDeployError, ReleaseTestResult, ReleaseTestCoverage } from './types';
+import { ReleaseProps } from '../../impl/release/ReleaseImpl';
 import { HookService } from './hooks';
 import SfpPackage from '../package/SfpPackage';
 import fs from 'fs';
@@ -9,9 +10,10 @@ export class ReleaseStreamService {
         pck: string,
         targetVersion: string,
         orgVersion: string,
-        type: string
+        type: string,
+        stage: string
     ): void {
-        ReleaseLoggerBuilder.getInstance().buildPackageInitialitation(pck, targetVersion, orgVersion, type);
+        ReleaseLoggerBuilder.getInstance().buildPackageInitialitation(pck, targetVersion, orgVersion, type, stage);
     }
 
     public static buildProps(props: ReleaseProps): void {
@@ -85,6 +87,10 @@ export class ReleaseStreamService {
         ReleaseLoggerBuilder.getInstance().buildJobandBranchId(jobId,branch);
     }
 
+    public static getFile(): ReleaseHookSchema {
+        return ReleaseLoggerBuilder.getInstance().build();
+    }
+
     public static writeArtifacts(): void {
         const file = ReleaseLoggerBuilder.getInstance().build();
         if (!fs.existsSync(PATH.DEFAULT)) {
@@ -103,7 +109,7 @@ class ReleaseLoggerBuilder {
     private constructor() {
         this.file = {
             payload: {
-                processName: PROCESSNAME.VALIDATE,
+                processName: PROCESSNAME.RELEASE,
                 scheduled: 0,
                 success: 0,
                 failed: 0,
@@ -114,7 +120,7 @@ class ReleaseLoggerBuilder {
                 instanceUrl: '',
                 events: {},
             },
-            eventType: 'sfpowerscripts.release',
+            eventType: EVENTTYPE.RELEASE,
             jobId: '',
             devHubAlias: '',
             branch: '',
@@ -133,12 +139,13 @@ class ReleaseLoggerBuilder {
         pck: string,
         targetVersion: string,
         orgVersion: string,
-        type: string
+        type: string,
+        stage: string
     ): ReleaseLoggerBuilder {
         this.file.payload.events[pck] = {
-            event: 'sfpowerscripts.release.awaiting',
+            event: EVENTSTATUS.DEPLOY_AWAITING,
             context: {
-                command: 'sfpowerscript:orchestrator:release',
+                stage: stage,
                 instanceUrl: this.file.payload.instanceUrl,
                 timestamp: new Date(),
                 jobId: this.file.jobId,
@@ -197,7 +204,7 @@ class ReleaseLoggerBuilder {
     }
 
     buildPackageError(pck: string, message: string): ReleaseLoggerBuilder {
-        this.file.payload.events[pck].event = 'sfpowerscripts.release.failed';
+        this.file.payload.events[pck].event = EVENTSTATUS.DEPLOY_FAILED;
         this.file.payload.events[pck].context.timestamp = new Date();
         if (message) {
             this.file.payload.events[pck].metadata.message += `${message}\n`;
@@ -206,7 +213,7 @@ class ReleaseLoggerBuilder {
     }
 
     buildPackageCompleted(sfpPackage: SfpPackage): ReleaseLoggerBuilder {
-        this.file.payload.events[sfpPackage.packageName].event = 'sfpowerscripts.release.success';
+        this.file.payload.events[sfpPackage.packageName].event = EVENTSTATUS.DEPLOY_SUCCESS;
         this.file.payload.events[sfpPackage.packageName].context.timestamp = new Date();
         this.file.payload.events[sfpPackage.packageName].metadata.apexInPackage = sfpPackage.isApexFound;
         this.file.payload.events[sfpPackage.packageName].metadata.profilesInPackage = sfpPackage.isProfilesFound;
@@ -225,7 +232,7 @@ class ReleaseLoggerBuilder {
 
     buildDeployErrorsMsg(deployError: ReleaseDeployError): ReleaseLoggerBuilder {
         Object.values(this.file.payload.events).forEach((value) => {
-            if (value.event !== 'sfpowerscripts.release.success') {
+            if (value.event !== EVENTSTATUS.DEPLOY_SUCCESS) {
                 value.metadata.deployErrors.push(deployError);
                 value.metadata.message += `Metadata: ${deployError.metadataType} ApiName: ${deployError.apiName} Type: ${deployError.problemType} Problem: ${deployError.problem}\n`;
             }
@@ -235,7 +242,7 @@ class ReleaseLoggerBuilder {
 
     buildDeployErrorsPkg(pck: string): ReleaseLoggerBuilder {
         Object.values(this.file.payload.events).forEach((value) => {
-            if (value.event === 'sfpowerscripts.release.awaiting' || value.event === 'sfpowerscripts.release.progress' || value.event === 'sfpowerscripts.release.failed') {
+            if (value.event === EVENTSTATUS.DEPLOY_AWAITING || value.event === EVENTSTATUS.DEPLOY_PROGRESS || value.event === EVENTSTATUS.DEPLOY_FAILED) {
                 for (const err of value.metadata.deployErrors) {
                     err.package = pck;
                 }
@@ -246,7 +253,7 @@ class ReleaseLoggerBuilder {
 
     buildTestResult(testResult: ReleaseTestResult): ReleaseLoggerBuilder {
         Object.values(this.file.payload.events).forEach((value) => {
-            if (value.event === 'sfpowerscripts.release.progress') {
+            if (value.event === EVENTSTATUS.DEPLOY_PROGRESS) {
                 value.metadata.testResults.push(testResult);
             }
         });
@@ -255,7 +262,7 @@ class ReleaseLoggerBuilder {
 
     buildTestCoverage(testCoverage: ReleaseTestCoverage): ReleaseLoggerBuilder {
         Object.values(this.file.payload.events).forEach((value) => {
-            if (value.event === 'sfpowerscripts.release.progress') {
+            if (value.event === EVENTSTATUS.DEPLOY_PROGRESS) {
                 value.metadata.testCoverages.push(testCoverage);
             }
         });
@@ -264,7 +271,7 @@ class ReleaseLoggerBuilder {
 
     buildTestSummary(key: string, message: string | number): ReleaseLoggerBuilder {
         Object.values(this.file.payload.events).forEach((value) => {
-            if (value.event === 'sfpowerscripts.release.progress') {
+            if (value.event === EVENTSTATUS.DEPLOY_PROGRESS) {
                 value.metadata.testSummary[key] = message;
             }
         });
@@ -281,7 +288,7 @@ class ReleaseLoggerBuilder {
     }
 
     buildStatusProgress(sfpPackage: SfpPackage): ReleaseLoggerBuilder {
-        this.file.payload.events[sfpPackage.packageName].event = 'sfpowerscripts.release.progress';
+        this.file.payload.events[sfpPackage.packageName].event = EVENTSTATUS.DEPLOY_PROGRESS;
         this.file.payload.events[sfpPackage.packageName].metadata.apexInPackage = sfpPackage.isApexFound;
         this.file.payload.events[sfpPackage.packageName].metadata.profilesInPackage = sfpPackage.isProfilesFound;
         this.file.payload.events[sfpPackage.packageName].metadata.metadataCount = sfpPackage.metadataCount;

@@ -33,6 +33,7 @@ export interface ReleaseProps {
     isDryRun: boolean;
     waitTime: number;
     keys: string;
+    jobId?: string;
     isGenerateChangelog: boolean;
     devhubUserName: string;
     branch: string;
@@ -250,6 +251,7 @@ export default class ReleaseImpl {
                 deploymentMode: DeploymentMode.NORMAL,
                 skipIfPackageInstalled: releaseDefinition.skipIfAlreadyInstalled,
                 logsGroupSymbol: this.props.logsGroupSymbol,
+                jobId: this.props.jobId,
                 currentStage: Stage.DEPLOY,
                 baselineOrg: releaseDefinition.baselineOrg,
                 isDryRun: this.props.isDryRun,

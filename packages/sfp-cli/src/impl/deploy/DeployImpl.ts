@@ -52,6 +52,7 @@ export interface DeployProps {
     currentStage?: Stage;
     baselineOrg?: string;
     isDryRun?: boolean;
+    jobId?: string;
     isRetryOnFailure?: boolean;
     promotePackagesBeforeDeploymentToOrg?: string;
     devhubUserName?: string;
@@ -89,6 +90,10 @@ export default class DeployImpl {
         try {
             //Create Org
             this.targetOrg = await SFPOrg.create({ aliasOrUsername: this.props.targetUsername });
+
+
+            ReleaseStreamService.buildOrgInfo(this.targetOrg.getConnection()._baseUrl(), this.props.devhubUserName);
+            ReleaseStreamService.buildJobandBranchId(this.props.jobId,'');
 
             let artifacts = ArtifactFetcher.fetchArtifacts(this.props.artifactDir, null, this.props.logger);
 
@@ -534,7 +539,8 @@ export default class DeployImpl {
                     packagesToPackageInfo[pkg.packageName].versionInstalledInOrg
                         ? COLOR_KEY_MESSAGE(packagesToPackageInfo[pkg.packageName].versionInstalledInOrg)
                         : COLOR_KEY_MESSAGE('N/A'),
-                    pkg.package_type
+                    pkg.package_type,
+                    this.props.currentStage
                 );
             }
         });
@@ -652,7 +658,8 @@ export default class DeployImpl {
                 pkg.packageName,
                 pkg.versionNumber,
                 'N/A',
-                pkg.package_type
+                pkg.package_type,
+                this.props.currentStage
             );
         });
         SFPLogger.log(table.toString(), LoggerLevel.INFO, this.props.logger);

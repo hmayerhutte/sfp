@@ -13,8 +13,8 @@ export class HookService<T> {
     public static getInstance(): HookService<any> {
         if (!HookService.instance) {
             HookService.instance = new HookService();
-            this.instance.limiter = new Bottleneck({ concurrency: 1 ,minTime: 300});
-            this.instance.limiter2 = new Bottleneck({ concurrency: 1 , minTime: 300});
+            this.instance.limiter = new Bottleneck({ concurrency: 1 ,minTime: 500});
+            this.instance.limiter2 = new Bottleneck({ concurrency: 1 , minTime: 500});
         }
         return HookService.instance;
     }
@@ -81,7 +81,7 @@ export class HookService<T> {
         const sfpEvent: SfPowerscriptsEvent__c[] = [
             {
                 Name: `${event['context']['jobId']}-${event['metadata']['package']}`,
-                Command__c: event['context']['command'],
+                Stage__c: event['context']['stage'],
                 JobId__c: event['context']['jobId'],
                 Branch__c: event['context']['branch'],
                 Commit__c: event['context']['commitId'],
@@ -106,7 +106,7 @@ export class HookService<T> {
                     SFPLogger.log(COLOR_TRACE('Error:', error), LoggerLevel.TRACE);
                     SFPLogger.log(
                         COLOR_WARNING(
-                            'We cannot send the events to your DevHub. Please check that the package id 04t2o000001B1jzAAC is installed on DevHub and the username has the permissions.'
+                            'We cannot send the events to your DevHub. Please check that the package id 04t2o000001B3OQAA0 is installed on DevHub and the username has the permissions.'
                         ),
                         LoggerLevel.TRACE
                     );

@@ -1,4 +1,9 @@
 import { Org } from "@salesforce/core";
+import { DeployProps } from '../../impl/deploy/DeployImpl';
+import { ValidateProps } from "../../impl/validate/ValidateImpl"
+import { BuildProps } from "../../impl/parallelBuilder/BuildImpl";
+import { ReleaseProps } from "../../impl/release/ReleaseImpl";
+import Release from "../../commands/release";
 // default types for file logger
 
 export enum PROCESSNAME {
@@ -6,28 +11,44 @@ export enum PROCESSNAME {
     BUILD = "build",
     VALIDATE = "validate",
     RELEASE = "release",
+    DEPLOY = "deploy",
 }
 
 export enum PATH {
-    DEFAULT = ".sfpowerscripts",
-    PREPARE = ".sfpowerscripts/eventStreamPrepare.json",
-    BUILD = ".sfpowerscripts/eventStreamBuild.json",
-    VALIDATE = ".sfpowerscripts/eventStreamValidate.json",
-    RELEASE = ".sfpowerscripts/eventStreamRelease.json",
-    BUILD_MD = ".sfpowerscripts/eventStreamBuild.md",
-    RELEASE_MD = ".sfpowerscripts/eventStreamRelease.md"
+    DEFAULT = ".sfpowerscripts/eventStream",
+    PREPARE = ".sfpowerscripts/eventStream/prepare.json",
+    BUILD = ".sfpowerscripts/eventStream/build.json",
+    VALIDATE = ".sfpowerscripts/eventStream/validate.json",
+    RELEASE = ".sfpowerscripts/eventStream/release.json",
+    DEPLOY = ".sfpowerscripts/eventStream/deploy.json",
+    VALIDATE_MD = ".sfpowerscripts/eventStream/validate.md",
+    BUILD_MD = ".sfpowerscripts/eventStream/build.md",
+    RELEASE_MD = ".sfpowerscripts/eventStream/release.md",
+    DEPLOY_MD = ".sfpowerscripts/eventStream/deploy.md"
 }
 
 export enum EVENTTYPE {
-    BUILD = "sfpowerscripts.build",
-    RELEASE = "sfpowerscripts.release",
-    VALIDATE = "sfpowerscripts.validate",
-    PREPARE = "sfpowerscripts.prepare"
+    BUILD = "sfp.build",
+    RELEASE = "sfp.release",
+    VALIDATE = "sfp.validate",
+    PREPARE = "sfp.prepare",
+    DEPLOY = "sfp.deploy"
+}
+
+export enum EVENTSTATUS {
+    BUILD_AWAITING = "sfp.build.awaiting",
+    BUILD_PROGRESS = "sfp.build.progress",
+    BUILD_SUCCESS = "sfp.build.success",
+    BUILD_FAILED = "sfp.build.failed",
+    DEPLOY_AWAITING = "sfp.deploy.awaiting",
+    DEPLOY_PROGRESS = "sfp.deploy.progress",
+    DEPLOY_SUCCESS = "sfp.deploy.success",
+    DEPLOY_FAILED = "sfp.deploy.failed",
 }
 
 
 export interface Context {
-    command: string;
+    stage: string;
     eventId: string;
     jobId: string;
     instanceUrl: string;
@@ -144,7 +165,7 @@ export interface BuildPackage {
 }
 
 export interface BuildPackageDetails {
-    event: 'sfpowerscripts.build.success' | 'sfpowerscripts.build.failed' |  'sfpowerscripts.build.progress' | 'sfpowerscripts.build.awaiting';
+    event: EVENTSTATUS;
     context: Context;
     metadata: BuildPackageMetadata;
 }
@@ -174,26 +195,12 @@ export interface BuildPackageMetadata {
     packageDependencies: BuildPackageDependencies[];
 }
 
-export interface BuildProps {
-	projectDirectory?: string;
-	devhubAlias?: string;
-	repourl?: string;
-	waitTime: number;
-	isQuickBuild: boolean;
-	isDiffCheckEnabled: boolean;
-	buildNumber: number;
-	executorcount: number;
-	isBuildAllAsSourcePackages: boolean;
-	branch?: string;
-	baseBranch?: string;
-	includeOnlyPackages?: string[];
-}
-
-// types for file logger validate
 
 export interface ValidateHookSchema {
     eventType: string;
-    eventId: string;
+    jobId: string;
+    devHubAlias: string;
+    branch: string;
     payload: ValidateFile;
 }
 
@@ -207,7 +214,9 @@ export interface ValidateFile {
     message: string;
     validateProps?: ValidateProps;
     releaseConfig?: string[];
-    events: ValidatePackage;
+    instanceUrl: string;
+    buildEvents: BuildPackage;
+    deployEvents: ReleasePackage;
 }
 
 export interface ValidatePackage {
@@ -215,7 +224,7 @@ export interface ValidatePackage {
 }
 
 export interface ValidatePackageDetails {
-    event: 'sfpowerscripts.validate.success' | 'sfpowerscripts.validate.failed' |  'sfpowerscripts.validate.awaiting' | 'sfpowerscripts.validate.progress';
+    event: EVENTSTATUS;
     context: Context;
     metadata: ValidatePackageMetadata;
     orgId: string;
@@ -283,30 +292,6 @@ export enum ValidationMode {
 	THOROUGH_LIMITED_BY_RELEASE_CONFIG = "thorough-release-config",
 }
 
-export interface ValidateProps {
-	installExternalDependencies?: boolean;
-	validateAgainst: ValidateAgainst;
-	validationMode: ValidationMode;
-	releaseConfigPath?: string;
-	coverageThreshold: number;
-	logsGroupSymbol: string[];
-	targetOrg?: string;
-	hubOrg?: Org;
-	pools?: string[];
-	shapeFile?: string;
-	isDeleteScratchOrg?: boolean;
-	keys?: string;
-	baseBranch?: string;
-	isImpactAnalysis?: boolean;
-	isDependencyAnalysis?: boolean;
-	diffcheck?: boolean;
-	disableArtifactCommit?: boolean;
-	orgInfo?: boolean;
-	disableSourcePackageOverride?: boolean;
-	disableParallelTestExecution?: boolean;
-}
-
-// types for file logger release
 
 export interface ReleaseHookSchema {
     eventType: string;
@@ -314,6 +299,14 @@ export interface ReleaseHookSchema {
     devHubAlias: string;
     branch: string;
     payload: ReleaseFile;
+}
+
+export interface DeployHookSchema {
+    eventType: string;
+    jobId: string;
+    devHubAlias: string;
+    branch: string;
+    payload: DeployFile;
 }
 
 export interface ReleaseFile {
@@ -330,12 +323,26 @@ export interface ReleaseFile {
     events: ReleasePackage;
 }
 
+export interface DeployFile {
+    processName: string;
+    scheduled: number;
+    success: number;
+    failed: number;
+    elapsedTime: number;
+    status: 'success' | 'failed' | 'inprogress';
+    message: string;
+    deployProps?: DeployProps;
+    releaseConfig?: string[];
+    instanceUrl: string;
+    events: ReleasePackage;
+}
+
 export interface ReleasePackage {
     [key: string]: ReleasePackageDetails
 }
 
 export interface ReleasePackageDetails {
-    event: 'sfpowerscripts.release.success' | 'sfpowerscripts.release.failed' |  'sfpowerscripts.release.awaiting' | 'sfpowerscripts.release.progress';
+    event: EVENTSTATUS;
     context: Context;
     metadata: ReleasePackageMetadata;
     orgId: string;
@@ -391,28 +398,9 @@ export interface ReleaseDeployError {
     problem: string;
 }
 
-
-export interface ReleaseProps {
-    releaseDefinitions: ReleaseDefinitionSchema[];
-    targetOrg: string;
-    fetchArtifactScript: string;
-    isNpm: boolean;
-    scope: string;
-    npmrcPath: string;
-    logsGroupSymbol: string[];
-    tags: any;
-    isDryRun: boolean;
-    waitTime: number;
-    keys: string;
-    isGenerateChangelog: boolean;
-    devhubUserName: string;
-    branch: string;
-    directory: string;
-}
-
 export interface SfPowerscriptsEvent__c {
     Name: string;
-    Command__c: string;
+    Stage__c: string;
     EventId__c: string;
     JobId__c: string;
     Branch__c: string;

@@ -173,6 +173,7 @@ export default class Release extends SfpCommand {
                 isDryRun: this.flags.dryrun,
                 waitTime: this.flags.waittime,
                 keys: this.flags.keys,
+                jobId: this.flags.jobid ?? `DEFAULT_JOBID_${Date.now().toString()}`,
                 isGenerateChangelog: this.flags.generatechangelog,
                 devhubUserName: this.flags.devhubalias,
                 branch: this.flags.branchname,
@@ -200,12 +201,13 @@ export default class Release extends SfpCommand {
             process.exitCode = 1;
         } finally {
             let totalElapsedTime: number = Date.now() - executionStartTime;
-            ReleaseStreamService.writeArtifacts();
 
             if (releaseResult) {
                 this.printReleaseSummary(releaseResult, totalElapsedTime);
                 this.sendMetrics(releaseResult, tags, totalElapsedTime);
             }
+
+            ReleaseStreamService.writeArtifacts();
         }
     }
 

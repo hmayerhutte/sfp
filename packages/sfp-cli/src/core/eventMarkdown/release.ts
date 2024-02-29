@@ -4,7 +4,7 @@ import { Align, getMarkdownTable } from "markdown-table-ts";
 
 export class ReleaseJobMarkdown {
   public static async run(schema: ReleaseHookSchema): Promise<void> {
-    let markdownFile = `### :package:  <mark>sfp</mark>  orchestrator:release has finished! \n\n`;
+    let markdownFile = `### :package:  <mark>sfp</mark>  release has finished! \n\n`;
     if(schema.payload.failed == 0){
         markdownFile += `#### :clap: Congratulations. The job was succesfully :rocket: \n\n`;
     } else {
@@ -33,7 +33,7 @@ export class ReleaseJobMarkdown {
           head:
           ['Package', 'Type', 'Id','Version','Status'],
           body: Object.entries(schema.payload.events).map(([key, value]) => {
-            return [key, value.metadata.type, value.metadata.versionId,value.metadata.targetVersion,value.event.includes('success') ? ':white_check_mark:' : ':x:' ];
+            return [key, value.metadata.type ?? ' ', value.metadata.versionId ?? ' ',value.metadata.targetVersion ?? ' ',value.event.includes('success') ? ':white_check_mark:' : ':x:' ];
           })
         },
         alignment: [Align.Left, Align.Center, Align.Right],
@@ -42,11 +42,11 @@ export class ReleaseJobMarkdown {
     markdownFile += buildTable + "\n\n";
 
     if(schema.payload.failed > 0){
-        markdownFile += `> ####:warning: Error Details :warning: \n\n`;
+        markdownFile += `#### :heavy_exclamation_mark: Error Details :heavy_exclamation_mark: \n`;
         Object.entries(schema.payload.events).forEach(([key, value]) => {
             if(value.event.includes('failed')){
-                markdownFile += `> #####${key} \n`;
-                markdownFile += `> - ${value.metadata.message} \n`;
+                markdownFile += `##### :point_right: ${key} \n`;
+                markdownFile += `${value.metadata.message} \n`;
             }
         });
     }

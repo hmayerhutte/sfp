@@ -278,7 +278,7 @@ export default class BuildImpl {
 			chars: ZERO_BORDER_TABLE,
 		});
 		for (const pkg of packagesToBeBuilt.keys()) {
-            BuildStreamService.buildPackageInitialitation(pkg,packagesToBeBuilt.get(pkg).reason, packagesToBeBuilt.get(pkg)?.tag);
+            BuildStreamService.buildPackageInitialitation(pkg,packagesToBeBuilt.get(pkg).reason, packagesToBeBuilt.get(pkg)?.tag, this.props.currentStage);
 			let item = [
 				pkg,
 				packagesToBeBuilt.get(pkg).reason,
@@ -314,7 +314,7 @@ export default class BuildImpl {
 		});
 		for (const pkg of this.packagesToBeBuilt) {
 			let item = [pkg, "Activated as part of all package build"];
-            BuildStreamService.buildPackageInitialitation(pkg,'Activated as part of all package build','');
+            BuildStreamService.buildPackageInitialitation(pkg,'Activated as part of all package build','', this.props.currentStage);
 			if (
 				this.isMultiConfigFilesEnabled &&
 				this.props.currentStage == Stage.BUILD

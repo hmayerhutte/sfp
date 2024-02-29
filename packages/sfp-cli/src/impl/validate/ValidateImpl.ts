@@ -82,6 +82,7 @@ export interface ValidateProps {
 	keys?: string;
 	baseBranch?: string;
 	diffcheck?: boolean;
+    jobId?: string;
 	disableArtifactCommit?: boolean;
 	orgInfo?: boolean;
 	disableSourcePackageOverride?: boolean;
@@ -130,7 +131,7 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
 				OrgInfoDisplayer.writeOrgInfoToMarkDown(this.orgAsSFPOrg);
 			}
 
-			
+
 
 			//Fetch Artifacts in the org
 			let packagesInstalledInOrgMappedToCommits: { [p: string]: string };
@@ -333,6 +334,7 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
 			skipIfPackageInstalled: false,
 			logsGroupSymbol: this.props.logsGroupSymbol,
 			currentStage: Stage.VALIDATE,
+            jobId: this.props.jobId,
 			disableArtifactCommit: this.props.disableArtifactCommit,
 			selectiveComponentDeployment:
 				this.props.validationMode == ValidationMode.FAST_FEEDBACK || this.props.validationMode == ValidationMode.FASTFEEDBACK_LIMITED_BY_RELEASE_CONFIG
@@ -382,15 +384,15 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
 
 				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`### 💣 Deployment Failed  💣`);
 				let firstPackageFailedToValdiate = deploymentResult.failed[0];
-				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`Package validation failed for  **${firstPackageFailedToValdiate.sfpPackage.packageName}** due to`);  
-				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,"");  
-				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,deploymentResult.error);  
+				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`Package validation failed for  **${firstPackageFailedToValdiate.sfpPackage.packageName}** due to`);
+				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,"");
+				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,deploymentResult.error);
 
-				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`Package that are not validated:`);  
+				FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`Package that are not validated:`);
 				deploymentResult.failed.map(
 					(packageInfo, index) => {
 						if (index!=0)
-						 FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`**${packageInfo.sfpPackage.packageName}**`);    
+						 FileOutputHandler.getInstance().appendOutput(`validation-error.md`,`**${packageInfo.sfpPackage.packageName}**`);
 					}
 				);
 			}
@@ -419,6 +421,7 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
 			isBuildAllAsSourcePackages: !this.props.disableSourcePackageOverride,
 			currentStage: Stage.VALIDATE,
 			baseBranch: this.props.baseBranch,
+            jobId: this.props.jobId,
 			devhubAlias: this.props.hubOrg?.getUsername()
 		};
 
@@ -510,7 +513,7 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
 				let includeOnlyPackages = [];
 				if (props.releaseConfigPaths?.length > 0) {
 					let releaseConfigAggregatedLoader = new ReleaseConfigAggregator(logger);
-					releaseConfigAggregatedLoader.addReleaseConfigs(props.releaseConfigPaths); 
+					releaseConfigAggregatedLoader.addReleaseConfigs(props.releaseConfigPaths);
 					includeOnlyPackages = releaseConfigAggregatedLoader.getAllPackages();
 					printIncludeOnlyPackages(includeOnlyPackages);
 			}
