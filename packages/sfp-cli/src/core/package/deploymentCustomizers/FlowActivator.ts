@@ -90,7 +90,7 @@ export default class FlowActivator implements DeploymentCustomizer {
                 let flowDefinitionsInOrg = await QueryHelper.query<FlowDefinition>(query, sfpOrg.getConnection(), true);
     
                 for (const flowDefinition of flowDefinitionsInOrg) {
-                    if (flowDefinition.ActiveVersion == null) {
+                    if (flowDefinition.ActiveVersion == null || flowDefinition.LatestVersion?.VersionNumber > flowDefinition.ActiveVersion?.VersionNumber) {
                         try {
                             await activate(flowDefinition, sfpOrg); 
                             SFPLogger.log(`Flow ${COLOR_KEY_MESSAGE(flowDefinition.DeveloperName)} is activated in the org successfully`, LoggerLevel.INFO, logger);

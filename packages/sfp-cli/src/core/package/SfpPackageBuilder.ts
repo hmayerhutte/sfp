@@ -267,6 +267,7 @@ export default class SfpPackageBuilder {
 export class PackageCreationParams {
     breakBuildIfEmpty: boolean = true;
     devHub?: string;
+    baselineOrg?:string;
     installationkeybypass?: boolean;
     installationkey?: string;
     waitTime?: string;
