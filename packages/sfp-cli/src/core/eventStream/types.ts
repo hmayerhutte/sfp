@@ -3,7 +3,7 @@ import { DeployProps } from '../../impl/deploy/DeployImpl';
 import { ValidateProps } from "../../impl/validate/ValidateImpl"
 import { BuildProps } from "../../impl/parallelBuilder/BuildImpl";
 import { ReleaseProps } from "../../impl/release/ReleaseImpl";
-import Release from "../../commands/release";
+import { PoolConfig } from '../../core/scratchorg/pool/PoolConfig';
 // default types for file logger
 
 export enum PROCESSNAME {
@@ -24,7 +24,8 @@ export enum PATH {
     VALIDATE_MD = ".sfpowerscripts/eventStream/validate.md",
     BUILD_MD = ".sfpowerscripts/eventStream/build.md",
     RELEASE_MD = ".sfpowerscripts/eventStream/release.md",
-    DEPLOY_MD = ".sfpowerscripts/eventStream/deploy.md"
+    DEPLOY_MD = ".sfpowerscripts/eventStream/deploy.md",
+    PREPARE_MD = ".sfpowerscripts/eventStream/prepare.md"
 }
 
 export enum EVENTTYPE {
@@ -44,6 +45,12 @@ export enum EVENTSTATUS {
     DEPLOY_PROGRESS = "sfp.deploy.progress",
     DEPLOY_SUCCESS = "sfp.deploy.success",
     DEPLOY_FAILED = "sfp.deploy.failed",
+    PREPARE_REQUEST_PROGRESS = "sfp.prepare.request.progress",
+    PREPARE_REQUEST_SUCCESS = "sfp.prepare..request.success",
+    PREPARE_REQUEST_FAILED = "sfp.prepare.request.failed",
+    PREPARE_EXECUTE_REQUEST = "sfp.prepare.execute.progress",
+    PREPARE_EXECUTE_SUCCESS = "sfp.prepare.execute.success",
+    PREPARE_EXECUTE_FAILED = "sfp.prepare.execute.failed",
 }
 
 
@@ -62,27 +69,49 @@ export interface Context {
 // types for file logger prepare
 export interface PrepareHookSchema {
     eventType: string;
-    eventId: string;
+    jobId: string;
+    devhubAlias: string;
     payload: PrepareFile;
 }
+
 export interface PrepareFile {
     processName: string;
+    scheduled: number;
     success: number;
     failed: number;
+    elapsedTime: number;
     status: 'success' | 'failed' | 'inprogress';
     message: string;
-    errorCode: string;
-    poolDefinition: PoolDefinition;
-    poolInfo: Poolinfo;
+    poolConfig?: PoolConfig;
+    poolInfo?: Poolinfo;
     externalDependencies: ExternalDependency[];
-    releaseConfig?: string[];
+    events: PrepareEvent;
+}
+
+export interface PrepareEvent {
+    [key: string]: PrepareEventDetails
+}
+
+export interface PrepareEventDetails {
+    event: EVENTSTATUS;
+    context: Context;
+    metadata: PrepareEventMetadata;
+}
+
+export interface PrepareEventMetadata {
+    package: string;
+    alias: string;
+    orgId: string;
+    username: string;
+    loginURL: string;
+    elapsedTime: number;
+    password: string;
+    message: string;
 }
 
 export interface Poolinfo {
     activeOrgs: number;
     maxOrgs: number;
-    prepareDuration: number;
-    events: OrgDetails[];
 }
 
 export interface OrgDetails {
@@ -110,29 +139,6 @@ export interface ExternalDependency {
     subscriberVersionId: string;
 }
 
-export interface PoolDefinition {
-    tag: string;
-    waitTime?: number;
-    expiry?: number;
-    maxAllocation: number;
-    batchSize?: number;
-    configFilePath?: string;
-    releaseConfigFile?: string;
-    succeedOnDeploymentErrors?: boolean;
-    installAll?: boolean;
-    enableVlocity?: boolean;
-    enableSourceTracking?: boolean;
-    relaxAllIPRanges?: boolean;
-    ipRangesToBeRelaxed?: string[];
-    retryOnFailure?: boolean;
-    maxRetryCount?: number;
-    snapshotPool?: string;
-    postDeploymentScriptPath?: string;
-    preDependencyInstallationScriptPath?: string;
-    disableSourcePackageOverride?: boolean;
- }
-
-// types for file logger build
 
 export interface BuildHookSchema {
     eventType: string;

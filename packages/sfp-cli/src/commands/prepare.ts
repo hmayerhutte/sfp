@@ -22,6 +22,7 @@ import { COLOR_WARNING } from '@flxblio/sfp-logger';
 import SFPOrg from '../core/org/SFPOrg';
 import { Flags } from '@oclif/core';
 import { loglevel, logsgroupsymbol, targetdevhubusername } from '../flags/sfdxflags';
+import { PrepareStreamService } from '../core/eventStream/prepare';
 
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('@flxblio/sfp', 'prepare');
@@ -46,6 +47,10 @@ export default class Prepare extends SfpCommand {
             required: false,
             description: messages.getMessage('keysDescription'),
         }),
+        jobid: Flags.string({
+            char: 'j',
+            description: messages.getMessage('jobIdFlagDescription'),
+        }),
         logsgroupsymbol,
         loglevel
     };
@@ -62,6 +67,7 @@ export default class Prepare extends SfpCommand {
         //Read pool config
         try {
             let poolConfig: PoolConfig = fs.readJSONSync(this.flags.poolconfig);
+            PrepareStreamService.buildJobId(this.flags.jobid ?? `DEFAULT_JOBID_${Date.now().toString()}`);
             this.validatePoolConfig(poolConfig);
             //Assign Keys to the config
             if (this.flags.keys) poolConfig.keys = this.flags.keys;
@@ -107,7 +113,11 @@ export default class Prepare extends SfpCommand {
                 );
                 SFPLogger.printHeaderLine('',COLOR_HEADER,LoggerLevel.INFO);
 
+                PrepareStreamService.buildStatistik(totalElapsedTime,results.value.failedToCreate,results.value.scratchOrgs.length,results.value.to_allocate);
+
                 await this.getCurrentRemainingNumberOfOrgsInPoolAndReport(poolConfig);
+
+                PrepareStreamService.buildPoolConfig(poolConfig);
 
                 SFPStatsSender.logGauge('prepare.succeededorgs', results.value.scratchOrgs.length, tags);
                 if (results.value.scratchOrgs.length > 0)
@@ -115,6 +125,7 @@ export default class Prepare extends SfpCommand {
             } else if (results.isErr()) {
                 SFPLogger.printHeaderLine('',COLOR_HEADER,LoggerLevel.INFO);
                 SFPLogger.log(COLOR_ERROR(results.error.message), LoggerLevel.ERROR);
+                PrepareStreamService.buildCommandError(results.error.message);
                 SFPLogger.printHeaderLine('',COLOR_HEADER,LoggerLevel.INFO);
 
                 switch (results.error.errorCode) {
@@ -133,7 +144,10 @@ export default class Prepare extends SfpCommand {
                         break;
                 }
             }
+            PrepareStreamService.writeArtifacts();
         } catch (err) {
+            PrepareStreamService.buildCommandError('Unable to execute command .. ' + err);
+            PrepareStreamService.writeArtifacts();
             throw new Error('Unable to execute command .. ' + err);
         }
     }

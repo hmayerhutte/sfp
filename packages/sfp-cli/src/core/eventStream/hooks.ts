@@ -21,6 +21,27 @@ export class HookService<T> {
 
     public async logEvent(event: T) {
         //###send webkooks### only when the env variables are set
+        const ignoreStageEnvironment: string | undefined = process.env.SFP_IGNORE_EVENTS;
+
+        let ingnoredStages: string[] = [];
+        // if the ignoreStageEnvironment is set, we will ignore the stages
+        if (ignoreStageEnvironment) {
+            try {
+                ingnoredStages = JSON.parse(ignoreStageEnvironment);
+              } catch (error) {
+                SFPLogger.log(
+                    COLOR_TRACE(`Error parsing SFP_IGNORE_EVENTS: ${error}`),
+                    LoggerLevel.TRACE
+                );
+            }
+            if(ingnoredStages.includes(event['context']['stage'])){
+                SFPLogger.log(
+                    COLOR_TRACE(`Ignoring event for stage: ${event['context']['stage']}`),
+                    LoggerLevel.TRACE
+                );
+                return;
+            }
+        }
         if (process.env.EVENT_STREAM_WEBHOOK_URL) {
             const axiosInstance = axios.create();
             axiosInstance.defaults.headers.common['Authorization'] = process.env.EVENT_STREAM_WEBHOOK_TOKEN;

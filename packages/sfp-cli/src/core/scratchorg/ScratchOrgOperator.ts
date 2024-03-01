@@ -9,6 +9,7 @@ import getFormattedTime from '../utils/GetFormattedTime';
 import SFPStatsSender from '../stats/SFPStatsSender';
 import { PoolConfig } from './pool/PoolConfig';
 const retry = require('async-retry');
+import { PrepareStreamService } from '../eventStream/prepare';
 
 export default class ScratchOrgOperator {
     constructor(private hubOrg: Org) {}
@@ -42,11 +43,17 @@ export default class ScratchOrgOperator {
             elapsedTime: Date.now() - startTime,
         };
 
+        PrepareStreamService.buildScratchOrgInfo(alias, scratchOrg);
+
         try {
             //Get Sfdx Auth URL
             const authInfo = await AuthInfo.create({ username: scratchOrg.username });
             scratchOrg.sfdxAuthUrl = authInfo.getSfdxAuthUrl();
         } catch (error) {
+            PrepareStreamService.buildScratchOrgError(
+                alias,
+                `Unable to set auth URL, Ignoring this scratch org, as its not suitable for pool due to ${error.message}`
+            );
             throw new Error(
                 `Unable to set auth URL, Ignoring this scratch org, as its not suitable for pool due to ${error.message}`
             );
@@ -58,9 +65,11 @@ export default class ScratchOrgOperator {
         scratchOrg.password = passwordData.password;
 
         if (!passwordData.password) {
+            PrepareStreamService.buildScratchOrgError(alias, 'Unable to setup password to scratch org');
             throw new Error('Unable to setup password to scratch org');
         } else {
             SFPLogger.log(`Password successfully set for ${scratchOrg.alias}`, LoggerLevel.DEBUG);
+            PrepareStreamService.buildScratchOrgPassword(alias, passwordData.password);
         }
 
         SFPLogger.log(
@@ -69,6 +78,7 @@ export default class ScratchOrgOperator {
             )}`,
             LoggerLevel.INFO
         );
+        PrepareStreamService.buildScratchOrgSuccess(alias);
         SFPStatsSender.logElapsedTime(`scratchorg.creation.time`,scratchOrg.elapsedTime)
         return scratchOrg;
     }

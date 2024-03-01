@@ -21,6 +21,7 @@ import { COLOR_SUCCESS } from '@flxblio/sfp-logger';
 import { COLOR_ERROR } from '@flxblio/sfp-logger';
 import getFormattedTime from '../../utils/GetFormattedTime';
 import path from 'path';
+import { PrepareStreamService } from '../../eventStream/prepare';
 
 export default class PoolCreateImpl extends PoolBaseImpl {
     private limiter;
@@ -201,6 +202,7 @@ export default class PoolCreateImpl extends PoolBaseImpl {
                 scratchOrgOperator.create(`SO` + i, this.pool.configFilePath, this.pool.expiry, this.pool.waitTime, this.pool)
             );
             scratchOrgPromises.push(scratchOrgPromise);
+            PrepareStreamService.buildPrepareInitialitation(`SO` + i);
         }
 
         SFPLogger.log(`Waiting for all scratch org request to complete, Please wait`);
@@ -401,6 +403,8 @@ export default class PoolCreateImpl extends PoolBaseImpl {
             LoggerLevel.INFO
         );
 
+        PrepareStreamService.buildExecuteInProgress(scratchOrg.alias);
+
         const startTime = Date.now();
         const result = await this.poolScriptExecutor.execute(scratchOrg, this.hubOrg, this.logLevel);
 
@@ -421,9 +425,11 @@ export default class PoolCreateImpl extends PoolBaseImpl {
             SFPStatsSender.logElapsedTime('prepare.org.singlejob.elapsed_time', Date.now() - startTime, {
                 poolname: this.pool.tag,
             });
+            PrepareStreamService.buildExecuteSuccess(scratchOrg.alias);
         } else {
             scratchOrg.isScriptExecuted = false;
             scratchOrg.failureMessage = result.error.message;
+            PrepareStreamService.buildExecuteFailed(scratchOrg.alias, result.error.message);
             SFPStatsSender.logCount('prepare.org.failed');
         }
 
