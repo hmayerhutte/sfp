@@ -1,3 +1,12 @@
+/* Original Copyright belongs to
+ * Copyright (c) 2020, salesforce.com, inc.
+ * All rights reserved.
+ * Licensed under the BSD 3-Clause license.
+ * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
+
+
+
 import SFPLogger, { LoggerLevel, COLOR_KEY_MESSAGE,COLOR_HEADER } from '@flxbl-io/sfp-logger';
 import { Messages, AuthInfo } from '@salesforce/core';
 import { Flags } from '@oclif/core';
