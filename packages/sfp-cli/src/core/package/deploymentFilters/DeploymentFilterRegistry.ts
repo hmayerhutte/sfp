@@ -11,8 +11,7 @@ export class DeploymentFilterRegistry {
         //TODO: Make dynamic
         let entitlementVersionFilter = new EntitlementVersionFilter();
         deploymentFilterImpls.push(entitlementVersionFilter);
-        
-        
+    
         return deploymentFilterImpls;
     }
 }

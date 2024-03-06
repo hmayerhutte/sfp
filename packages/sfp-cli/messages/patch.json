@@ -1,5 +1,5 @@
 {
-    "commandDescription": "[Alpha] Patch a branch in the repository as per the release definition and create a new branch",
+    "commandDescription": "Generate a dynamic branch with the packages patched to the contents as mentioned in the release config file",
     "releaseDefinitionFlagDescription": "Path to release definiton yaml",
     "sourcebranchNameFlagDescription": "Name of the source branch to be used on which the alignment need to be applied",
     "targetbranchNameFlagDescription": "Name of the target branch to be created after the alignment",

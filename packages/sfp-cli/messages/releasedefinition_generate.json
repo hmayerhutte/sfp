@@ -1,5 +1,5 @@
 {
-    "commandDescription": "Generates release definition based on the artifacts installed from a commit reference",
+    "commandDescription": "Generates release definition based on the artifacts at the specified head of source branch/commit ref",
     "configFileFlagDescription":"Path to the release config file which determines how the release definition should be generated",
     "releaseNameFlagDescription": "Set a release name on the release definition file created",
     "commitFlagDescription": "Utilize the tags on the source branch to generate release definiton",

@@ -1,4 +1,4 @@
-import SFPLogger, { COLOR_KEY_MESSAGE, Logger, LoggerLevel } from '@flxblio/sfp-logger';
+import SFPLogger, { COLOR_KEY_MESSAGE, Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 import { PackageInstallationResult, PackageInstallationStatus } from './PackageInstallationResult';
 import ProjectConfig from '../../project/ProjectConfig';
 import SFPStatsSender from '../../stats/SFPStatsSender';
@@ -318,7 +318,7 @@ export abstract class InstallPackage {
             try {
                 if (await postDeployer.isEnabled(this.sfpPackage, this.connection, this.logger)) {
                     SFPLogger.log(
-                        `Executing Pre Deployer ${COLOR_KEY_MESSAGE(postDeployer.getName())}`,
+                        `Executing Post Deployer ${COLOR_KEY_MESSAGE(postDeployer.getName())}`,
                         LoggerLevel.INFO,
                         this.logger
                     );

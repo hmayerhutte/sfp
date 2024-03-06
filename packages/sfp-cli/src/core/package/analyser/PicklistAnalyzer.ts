@@ -1,7 +1,7 @@
 import { ComponentSet, registry } from '@salesforce/source-deploy-retrieve';
 import SfpPackage, { PackageType } from '../SfpPackage';
 import { PackageAnalyzer } from './PackageAnalyzer';
-import SFPLogger, { Logger, LoggerLevel } from '@flxblio/sfp-logger';
+import SFPLogger, { Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 
 export default class PicklistAnalyzer implements PackageAnalyzer {
 
@@ -28,7 +28,7 @@ export default class PicklistAnalyzer implements PackageAnalyzer {
                 }
             }
 
-            if (components) {
+            if (components && components.length > 0) {
                 for (const fieldComponent of components) {
                     let customField = fieldComponent.parseXmlSync().CustomField;
                     //issues/1367

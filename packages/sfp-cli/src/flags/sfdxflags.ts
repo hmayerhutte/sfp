@@ -26,7 +26,7 @@ export const orgApiVersionFlagSfdxStyle = orgApiVersionFlag({
 });
 
 Messages.importMessagesDirectory(__dirname);
-const messages = Messages.loadMessages('@flxblio/sfp', 'core-messages');
+const messages = Messages.loadMessages('@flxbl-io/sfp', 'core-messages');
 
 export const loglevel = Flags.string({
   description: 'logging level for this command invocation',
@@ -70,13 +70,13 @@ const userNameFlag = Flags.custom({
 });
 
 export const optionalUserNameFlag = userNameFlag({
-  aliases: ['targetusername', 'u'],
-  char: 'u',
+  aliases: ['targetusername', 'u','o'],
+  char: 'o',
 });
 
 export const requiredUserNameFlag = userNameFlag({
-  aliases: ['targetusername', 'u'],
-  char: 'u',
+  aliases: ['targetusername', 'u','o'],
+  char: 'o',
   required: true,
 });
 

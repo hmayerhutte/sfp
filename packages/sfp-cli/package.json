@@ -1,7 +1,7 @@
 {
-    "name": "@flxblio/sfp",
-    "description": "Flxbl Toolkit",
-    "version": "34.0.2",
+    "name": "@flxbl-io/sfp",
+    "description": "sfp is a CLI tool to help you manage your Salesforce projects in an artifact centric model",
+    "version": "37.0.1",
     "license": "MIT",
     "author": "flxblio",
     "release": "February 24",
@@ -14,10 +14,10 @@
         "access": "public"
     },
     "dependencies": {
-        "@flxblio/apexlink": "^2.0.0",
-        "@flxblio/sfdx-process-wrapper": "^1.0.3",
-        "@flxblio/sfp-logger": "^2.1.3",
-        "@flxblio/sfprofiles": "^3.0.0",
+        "@flxbl-io/apexlink": "^3.0.0",
+        "@flxbl-io/sfdx-process-wrapper": "^2.0.0",
+        "@flxbl-io/sfp-logger": "^3.0.0",
+        "@flxbl-io/sfprofiles": "^4.0.0",
         "@newrelic/telemetry-sdk": "^0.6.0",
         "@oclif/core": "2.11.8",
         "@oclif/plugin-commands": "^3.0.3",
@@ -37,6 +37,7 @@
         "chalk": "^4.1.2",
         "cli-table": "0.3.11",
         "datadog-metrics": "^0.9.3",
+        "dedent": "^1.5.1",
         "dotenv": "16.3.1",
         "fast-xml-parser": "4.2.7",
         "fs-extra": "^11.1.1",
@@ -103,49 +104,46 @@
     ],
     "oclif": {
         "commands": "./lib/commands",
+        "topicSeparator": " ",
         "topics": {
             "releasedefinition": {
-                "description": "Commands around release definition"
-            },
-            "orchestrator": {
-                "description": "Orchestrate packages from a monorepo through its lifecycle, driven by descriptors in your sfdx-project.json"
+                "description": "Commands around managing release defintion"
             },
             "pool": {
-                "description": "Manage the pooled orgs created by the sfp orchestrator in prepare stage"
+                "description": "Build and manage scratch org or sandbox pools"
+            },
+            "validate": {
+                "description": " Validate a change in your project repository"
             },
             "changelog": {
                 "description": "Track your artifacts & user stories as they progress through different environments, with release changelogs"
             },
-            "package": {
-                "description": "Work with various types of packages such as unlocked/source/data/delta individually",
-                "subtopics": {
-                    "data": {
-                        "description": "Commands to create and install data packages (sfdmu)"
-                    },
-                    "unlocked": {
-                        "description": "Commands to create and install unlocked packages"
-                    },
-                    "source": {
-                        "description": "Commands to create and install sfp source packages"
-                    }
-                }
+            "artifacts": {
+                "description": "Manage artifacts for a project",
+                "external": true
             },
             "impact": {
-                "description": "Figures out the impact of  various components of sfp",
+                "description": "Utilities to help you understand the impact of various components in sfp",
                 "external": true
             },
-            "analyze": {
-                "description": "Analyze your projects using static analysis tools such as PMD",
-                "external": true
+            "metrics": {
+                "description": "Report metrics to sfp supported metric providers",
+                "external": false
             },
             "apextests": {
-                "description": "Trigger Apex Tests and validate apex tests in a package"
+                "description": "Manage apex tests in a package or a org"
             },
             "repo": {
-                "description": "Commands to help with maintaing repository"
+                "description": "Manage your project repository"
+            },
+            "flow": {
+                "description": "Manage flows in your org"
+            },
+            "profile": {
+                "description": "Commands to manage profiles in your project or org"
             },
             "dependency": {
-                "description": "Commands to help with dependency management of a project",
+                "description": "Manage the dependencies of a project",
                 "subtopics": {
                     "expand": {
                         "description": "Expand the dependency list in sfdx-project.json file for each package, fix the gap of dependencies from its dependent packages"
@@ -171,6 +169,7 @@
     },
     "scripts": {
         "build": "pnpm run clean && pnpm run compile",
+        "docs": "oclif readme --no-aliases --multi --dir=docs --repository-prefix https://github.com/flxbl-io/sfp",
         "manifest": "oclif manifest",
         "clean": "rimraf ./lib && rimraf tsconfig.tsbuildinfo",
         "compile": "tsc -b tsconfig.json",

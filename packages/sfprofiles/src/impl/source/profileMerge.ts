@@ -24,7 +24,7 @@ import Profile, {
 import * as util from 'util';
 import ProfileActions, { ProfileStatus } from './profileActions';
 import ProfileWriter from '@impl/metadata/writer/profileWriter';
-import SFPLogger, {LoggerLevel } from '@flxblio/sfp-logger';
+import SFPLogger, {LoggerLevel } from '@flxbl-io/sfp-logger';
 
 const unsupportedprofiles = [];
 
@@ -769,7 +769,7 @@ export default class ProfileMerge extends ProfileActions {
 
     private removeUnwantedPermissions(profileObjFromServer: Profile, metadatas: any) {
         const  getPermissionsArray = (permissions: any) => {
-            if(permissions == null || permissions == undefined) {
+            if(!permissions) {
                 permissions = [];
             } else if(!Array.isArray(permissions)) {
                 permissions = [permissions];

@@ -1,6 +1,6 @@
 import ReleaseDefinition from './ReleaseDefinition';
 import DeployImpl, { DeployProps, DeploymentMode, DeploymentResult } from '../deploy/DeployImpl';
-import SFPLogger, { COLOR_HEADER, COLOR_INFO, COLOR_KEY_MESSAGE, ConsoleLogger, Logger, LoggerLevel } from '@flxblio/sfp-logger';
+import SFPLogger, { COLOR_HEADER, COLOR_INFO, COLOR_KEY_MESSAGE, ConsoleLogger, Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 import { Stage } from '../Stage';
 import ReleaseError from '../../errors/ReleaseError';
 import ChangelogImpl from '../changelog/ChangelogImpl';
@@ -78,7 +78,7 @@ export default class ReleaseImpl {
         );
 
         //Clear up the deployment output
-        SFPLogger.log(`Clearing deployment output`, LoggerLevel.TRACE, this.logger);
+        SFPLogger.log(`Clearing installation output`, LoggerLevel.TRACE, this.logger);
         FileOutputHandler.getInstance().deleteOutputFile(`deployment-breakdown.md`);
         FileOutputHandler.getInstance().deleteOutputFile(`release-changelog.md`);
       
@@ -109,7 +109,7 @@ export default class ReleaseImpl {
                 releaseName = succededDeployment.releaseDefinition.release;
                 let releaseDefinition = succededDeployment.releaseDefinition;
                 if (releaseDefinition.changelog) {
-                    if (releaseDefinition.changelog.workItemFilters) {
+                    if (releaseDefinition.changelog?.workItemFilters) {
                         workitemFilters.push(...releaseDefinition.changelog?.workItemFilters);
                     }
                     if (releaseDefinition.changelog.limit > limit) limit = releaseDefinition.changelog.limit;

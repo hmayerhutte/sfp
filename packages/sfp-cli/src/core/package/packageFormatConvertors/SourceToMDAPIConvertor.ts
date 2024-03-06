@@ -1,6 +1,6 @@
 import { ComponentSet, MetadataConverter } from '@salesforce/source-deploy-retrieve';
 import path from 'path';
-import SFPLogger, { Logger, LoggerLevel } from '@flxblio/sfp-logger';
+import SFPLogger, { Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 
 export default class SourceToMDAPIConvertor {
     public constructor(
@@ -40,11 +40,11 @@ export default class SourceToMDAPIConvertor {
     }
 
     private makefolderid(length): string {
-        var result = '';
-        var characters =
+        let result = '';
+        let characters =
             'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        var charactersLength = characters.length;
-        for (var i = 0; i < length; i++) {
+        let charactersLength = characters.length;
+        for (let i = 0; i < length; i++) {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
         return result;

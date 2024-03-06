@@ -17,10 +17,10 @@ import SFPLogger, {
 	FileLogger,
 	LoggerLevel,
 	VoidLogger,
-} from "@flxblio/sfp-logger";
-import { COLOR_KEY_MESSAGE } from "@flxblio/sfp-logger";
-import { COLOR_HEADER } from "@flxblio/sfp-logger";
-import { COLOR_ERROR } from "@flxblio/sfp-logger";
+} from "@flxbl-io/sfp-logger";
+import { COLOR_KEY_MESSAGE } from "@flxbl-io/sfp-logger";
+import { COLOR_HEADER } from "@flxbl-io/sfp-logger";
+import { COLOR_ERROR } from "@flxbl-io/sfp-logger";
 import SfpPackage, {
 	PackageType,
 } from "../../core/package/SfpPackage";
@@ -48,6 +48,7 @@ export interface BuildProps {
 	configFilePath?: string;
 	projectDirectory?: string;
 	devhubAlias?: string;
+	baselineOrgAlias?:string;
 	repourl?: string;
 	waitTime: number;
 	isQuickBuild: boolean;
@@ -420,7 +421,7 @@ export default class BuildImpl {
 		function printIncludeOnlyPackages() {
 			SFPLogger.log(
 				COLOR_KEY_MESSAGE(
-					`Build will include the below packages as per inclusive filter`,
+					`Build will include the below packages release configs (domain(s))(domain)`,
 				),
 				LoggerLevel.TRACE,
 			);
@@ -773,6 +774,7 @@ export default class BuildImpl {
 			},
 			{
 				devHub: this.props.devhubAlias,
+				baselineOrg: this.props.baselineOrgAlias,
 				installationkeybypass: true,
 				installationkey: undefined,
 				waitTime: this.props.waitTime.toString(),
