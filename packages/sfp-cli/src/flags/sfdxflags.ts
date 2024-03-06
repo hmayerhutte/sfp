@@ -1,9 +1,9 @@
 /*
  * Modified from sfdx-plugins-core to meet sfp requirment
- * sfp is not moving to the new style immediately 
+ * sfp is not moving to the new style immediately
  * to reduce migration efforts in pipelines
- * 
- * 
+ *
+ *
  * Original Copyright
  * Copyright (c) 2020, salesforce.com, inc.
  * All rights reserved.
@@ -65,7 +65,7 @@ const userNameFlag = Flags.custom({
       return aliasAccessor.resolveAlias(input);
     else
       return aliasAccessor.resolveUsername(input);
-   
+
   },
 });
 

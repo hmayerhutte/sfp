@@ -127,6 +127,10 @@
                 "description": "Report metrics to sfp supported metric providers",
                 "external": false
             },
+            "org": {
+                "description": "Commands around org tasks",
+                "external": false
+            },
             "apextests": {
                 "description": "Manage apex tests in a package or a org"
             },

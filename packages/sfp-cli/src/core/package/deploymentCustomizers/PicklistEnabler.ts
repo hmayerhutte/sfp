@@ -142,7 +142,7 @@ export default class PicklistEnabler implements DeploymentCustomizer {
             }
         } catch (error) {
             throw new Error(`Unable to process Picklist update due to ${error.message}`);
-        }
+        }   
     }
 
     private async getPicklistInOrg(urlId: string, conn: Connection): Promise<any> {
