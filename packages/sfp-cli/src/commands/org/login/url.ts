@@ -1,4 +1,4 @@
-import SFPLogger, { LoggerLevel, COLOR_KEY_MESSAGE,COLOR_HEADER } from '@flxblio/sfp-logger';
+import SFPLogger, { LoggerLevel, COLOR_KEY_MESSAGE,COLOR_HEADER } from '@flxbl-io/sfp-logger';
 import { Messages, AuthInfo } from '@salesforce/core';
 import { Flags } from '@oclif/core';
 import SfpCommand from '../../../SfpCommand';
