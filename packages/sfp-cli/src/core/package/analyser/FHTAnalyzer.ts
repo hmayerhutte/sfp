@@ -38,8 +38,8 @@ export default class FHTAnalyser implements PackageAnalyzer {
             fhtFields = await this.addFieldsFromComponentSet(fhtFields, componentSet);
 
             if (Object.keys(fhtFields).length>0) {
-                sfpPackage['isFHTFieldFound'] = true;
-                sfpPackage['fhtFields'] = fhtFields;
+                sfpPackage.isFHTFieldFound = true;
+                sfpPackage.fhtFields = fhtFields;
             }
         } catch (error) {
             //Ignore error for now

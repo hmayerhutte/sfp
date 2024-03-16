@@ -3,31 +3,21 @@ import * as rimraf from 'rimraf';
 import SFPLogger, { Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 import { mkdirpSync } from 'fs-extra';
 import * as fs from 'fs-extra';
-import PackageComponentDiff from '../diff/PackageComponentDiff';
+import SfpPackage from '../SfpPackage';
 let path = require('path');
 
 export default class SfpPackageContentGenerator {
-    public static isPreDeploymentScriptAvailable: boolean = false;
-    public static isPostDeploymentScriptAvailable: boolean = false;
-
     public static async generateSfpPackageDirectory(
         logger: Logger,
-        projectDirectory: string,
-        projectConfig: any,
-        sfdx_package: string,
-        packageDirectory: string,
-        versionNumber:string,
-        destructiveManifestFilePath?: string,
-        configFilePath?: string,
-        pathToReplacementForceIgnore?: string,
-        revisionFrom?: string,
-        revisionTo?: string
+        sfpPackage: SfpPackage,
+        pathToReplacementForceIgnore: string
     ): Promise<string> {
-        let artifactDirectory: string = `.sfpowerscripts/${this.makefolderid(5)}_source`,
-            rootDirectory: string;
+        let artifactDirectory: string = `.sfpowerscripts/${this.makefolderid(5)}_source`;
+        let rootDirectory: string;
+        let packageDirectory: string = sfpPackage.packageDirectory;
 
-        if (projectDirectory) {
-            rootDirectory = projectDirectory;
+        if (sfpPackage.projectDirectory) {
+            rootDirectory = sfpPackage.projectDirectory;
         } else {
             rootDirectory = '';
         }
@@ -42,30 +32,27 @@ export default class SfpPackageContentGenerator {
         //Create a new directory
         fs.mkdirsSync(path.join(artifactDirectory, packageDirectory));
 
-        SfpPackageContentGenerator.createScripts(artifactDirectory, rootDirectory, sfdx_package);
+        SfpPackageContentGenerator.createScripts(artifactDirectory, rootDirectory, sfpPackage.packageName);
+
+        SfpPackageContentGenerator.createDestructiveChangeDirectories(artifactDirectory, rootDirectory, sfpPackage);
 
         SfpPackageContentGenerator.createForceIgnores(artifactDirectory, rootDirectory);
-
 
         if (pathToReplacementForceIgnore)
             SfpPackageContentGenerator.replaceRootForceIgnore(artifactDirectory, pathToReplacementForceIgnore, logger);
 
-        if (destructiveManifestFilePath) {
-            SfpPackageContentGenerator.copyDestructiveManifests(
-                destructiveManifestFilePath,
+        if (sfpPackage.configFilePath) {
+            SfpPackageContentGenerator.copyConfigFilePath(
+                sfpPackage.configFilePath,
                 artifactDirectory,
                 rootDirectory,
                 logger
             );
         }
 
-        if (configFilePath) {
-            SfpPackageContentGenerator.copyConfigFilePath(configFilePath, artifactDirectory, rootDirectory, logger);
-        }
-
         SfpPackageContentGenerator.handleUnpackagedMetadata(
-            sfdx_package,
-            projectConfig,
+            sfpPackage.packageName,
+            sfpPackage.projectConfig,
             rootDirectory,
             artifactDirectory
         );
@@ -73,9 +60,9 @@ export default class SfpPackageContentGenerator {
         SfpPackageContentGenerator.createPackageManifests(
             artifactDirectory,
             rootDirectory,
-            projectConfig,
-            sfdx_package,
-            versionNumber
+            sfpPackage.projectConfig,
+            sfpPackage.packageName,
+            sfpPackage.versionNumber
         );
 
         fs.copySync(path.join(rootDirectory, packageDirectory), path.join(artifactDirectory, packageDirectory));
@@ -106,18 +93,21 @@ export default class SfpPackageContentGenerator {
         projectDirectory: string,
         projectConfig: any,
         sfdx_package: string,
-        versionNumber:string
+        versionNumber: string
     ) {
         // Create pruned package manifest in source directory
         let cleanedUpProjectManifest = ProjectConfig.cleanupMPDFromProjectConfig(projectConfig, sfdx_package);
 
-        //Ensure version numbers are used from 
-        cleanedUpProjectManifest.packageDirectories[0].versionNumber=versionNumber
+        //Ensure version numbers are used from
+        cleanedUpProjectManifest.packageDirectories[0].versionNumber = versionNumber;
 
         //Handle unpackaged metadata
         if (fs.existsSync(path.join(artifactDirectory, 'unpackagedMetadata'))) {
             cleanedUpProjectManifest.packageDirectories[0].unpackagedMetadata.path = path.join('unpackagedMetadata');
-            cleanedUpProjectManifest.packageDirectories.push({ path: path.join('unpackagedMetadata'), default: false });
+            cleanedUpProjectManifest.packageDirectories.push({
+                path: path.join('unpackagedMetadata'),
+                default: false,
+            });
         }
 
         //Setup preDeployment Script Path
@@ -181,6 +171,36 @@ export default class SfpPackageContentGenerator {
     }
 
     /**
+     * Create destructive changes directory containing pre-destruct & post-destruct
+     * @param artifactDirectory
+     * @param projectDirectory
+     * @param sfdx_package
+     */
+    private static createDestructiveChangeDirectories(
+        artifactDirectory: string,
+        projectDirectory: string,
+        sfpPackage: SfpPackage
+    ): void {
+        let packageDescriptor = ProjectConfig.getSFDXPackageDescriptor(projectDirectory, sfpPackage.packageName);
+
+        if (fs.existsSync(path.join(projectDirectory, sfpPackage.packageDirectory, `pre-destructive`))) {
+            fs.mkdirsSync(path.join(artifactDirectory, `pre-destructive`));
+            fs.copySync(
+                path.join(projectDirectory, sfpPackage.packageDirectory, `pre-destructive`),
+                path.join(artifactDirectory, `pre-destructive`)
+            );
+        }
+
+        if (fs.existsSync(path.join(projectDirectory, sfpPackage.packageDirectory, `post-destructive`))) {
+            fs.mkdirsSync(path.join(artifactDirectory, `post-destructive`));
+            fs.copySync(
+                path.join(projectDirectory, sfpPackage.packageDirectory, `post-destructive`),
+                path.join(artifactDirectory, `post-destructive`)
+            );
+        }
+    }
+
+    /**
      * Create root forceignore and forceignores directory containing ignore files for different stages
      * @param artifactDirectory
      * @param projectDirectory
@@ -190,7 +210,7 @@ export default class SfpPackageContentGenerator {
         mkdirpSync(forceIgnoresDir);
 
         let projectConfig = ProjectConfig.getSFDXProjectConfig(projectDirectory);
-        let ignoreFiles = projectConfig.plugins?.sfp?.ignoreFiles;
+        let ignoreFiles = projectConfig.plugins?.sfp?.ignoreFiles || projectConfig.plugins?.sfpowerscripts?.ignoreFiles;
 
         //TODO: Make this readable
         //This is a fix when sfppackage is used in stages where build is not involved
@@ -215,13 +235,29 @@ export default class SfpPackageContentGenerator {
 
             //append additional entry to force ignore file
             //TODO: Revisit the location
-            fs.appendFileSync(  path.join(forceIgnoresDir, '.' + stage + 'ignore'),"\n**/postDeploy");
+            fs.appendFileSync(path.join(forceIgnoresDir, '.' + stage + 'ignore'), '\n**/postDeploy');
+            this.removeDestructiveDirectoriesFromForceIgnoreFIles(
+                path.join(path.join(forceIgnoresDir, '.' + stage + 'ignore'))
+            );
         };
 
         let stages: string[] = ['prepare', 'validate', 'quickbuild', 'build'];
         stages.forEach((stage) => copyForceIgnoreForStage(stage));
 
         fs.copySync(rootForceIgnore, path.join(artifactDirectory, '.forceignore'));
+        fs.appendFileSync(path.join(artifactDirectory, '.forceignore'), '\n**/postDeploy');
+        this.removeDestructiveDirectoriesFromForceIgnoreFIles(path.join(artifactDirectory, '.forceignore'));
+    }
+
+    private static removeDestructiveDirectoriesFromForceIgnoreFIles(filePath: string): void {
+        const absolutePath = path.resolve(filePath);
+        const content = fs.readFileSync(absolutePath, 'utf8');
+        const updatedContent = content
+            .split('\n')
+            .filter((line) => !line.includes('pre-destructive') && !line.includes('post-destructive'))
+            .join('\n');
+
+        fs.writeFileSync(absolutePath, updatedContent, 'utf8');
     }
 
     /**
@@ -243,29 +279,6 @@ export default class SfpPackageContentGenerator {
                 LoggerLevel.INFO,
                 logger
             );
-        }
-    }
-
-    private static copyDestructiveManifests(
-        destructiveManifestFilePath: string,
-        artifactDirectory: string,
-        projectDirectory: any,
-        logger: Logger
-    ) {
-        if (fs.existsSync(destructiveManifestFilePath)) {
-            try {
-                fs.mkdirsSync(path.join(artifactDirectory, 'destructive'));
-                fs.copySync(
-                    path.join(projectDirectory, destructiveManifestFilePath),
-                    path.join(artifactDirectory, 'destructive', 'destructiveChanges.xml')
-                );
-            } catch (error) {
-                SFPLogger.log(
-                    'Unable to read/parse destructive manifest, Please check your artifacts, Will result in an error while deploying',
-                    LoggerLevel.WARN,
-                    logger
-                );
-            }
         }
     }
 

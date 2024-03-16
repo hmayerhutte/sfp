@@ -2,7 +2,7 @@ import { ComponentSet, registry } from '@salesforce/source-deploy-retrieve';
 import SFPOrg from '../../org/SFPOrg';
 import QueryHelper from '../../queryHelper/QueryHelper';
 import SFPLogger, { Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
-import { DeploymentFilter } from './DeploymentFilter';
+import { ComponentSetModifier } from './ComponentSetModifier';
 import * as fs from 'fs-extra';
 import SettingsFetcher from '../../metadata/SettingsFetcher';
 import { PackageType } from '../SfpPackage';
@@ -11,7 +11,7 @@ const { XMLBuilder } = require('fast-xml-parser');
 const EXISTING_SLAPPROCESS_QUERY = `SELECT Name, NameNorm,VersionNumber, VersionMaster FROM SlaProcess ORDER BY VersionNumber DESC`;
 const EXISTING_SLAPPROCESS_QUERY_NO_VERSIONING = `SELECT Name, NameNorm FROM SlaProcess`;
 
-export default class EntitlementVersionFilter implements DeploymentFilter {
+export default class EntitlementVersionFilter implements ComponentSetModifier {
   
     public async apply(org: SFPOrg, componentSet: ComponentSet, logger: Logger): Promise<ComponentSet> {
         //Only do if entitlment exits in the package

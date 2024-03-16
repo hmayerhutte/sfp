@@ -3,7 +3,7 @@ import { Logger } from "@flxbl-io/sfp-logger";
 import SFPOrg from "../../org/SFPOrg";
 import { PackageType } from "../SfpPackage";
 
-export interface DeploymentFilter
+export interface ComponentSetModifier
 {
    apply(org: SFPOrg, componentSet: ComponentSet,logger:Logger):Promise<ComponentSet>;
    isToApply(projectConfig: any,packageType:string): boolean;

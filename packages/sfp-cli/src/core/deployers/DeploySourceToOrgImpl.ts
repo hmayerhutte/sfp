@@ -23,6 +23,7 @@ import getFormattedTime from '../utils/GetFormattedTime';
 import { TestLevel } from '../apextest/TestOptions';
 import { SfProject } from '@salesforce/core';
 import { SourceTracking } from '@salesforce/source-tracking';
+import PackageComponentDeployStatusPrinter from '../display/PackageComponentDeployStatusPrinter';
 
 export default class DeploySourceToOrgImpl implements DeploymentExecutor {
     public constructor(
@@ -43,12 +44,28 @@ export default class DeploySourceToOrgImpl implements DeploymentExecutor {
 
         this.writeResultToReport(result);
 
+     
+
+        if (result.response.details.componentFailures != null)
+            PackageComponentDeployStatusPrinter.printComponentTable(
+                result.response.details.componentFailures,
+                'failed',
+                this.logger
+            );
+
         if (this.deploymentOptions.sourceTracking) {
             await this.handleSourceTracking(this.org, this.logger, this.projectDir, result);
         }
 
         //Handle Responses
         if (result.response.status == RequestStatus.Succeeded) {
+            
+            PackageComponentDeployStatusPrinter.printComponentTable(
+                result.response.details.componentSuccesses,
+                'succeeded',
+                this.logger
+            );
+
             deploySourceResult.message = `Successfully deployed`;
             deploySourceResult.result = result.response.success;
             deploySourceResult.deploy_id = result.response.id;
@@ -67,7 +84,10 @@ export default class DeploySourceToOrgImpl implements DeploymentExecutor {
 
     private handlErrorMesasge(result: DeployResult): string {
         if (result.response.numberComponentErrors == 0) {
-            return 'Unable to fetch report, Check your org for details';
+            //Check for test coverage warnings
+            if (result.response.details.runTestResult.codeCoverageWarnings) {
+                return 'Unable to deploy due to unsatisfactory code coverage and/or test failures';
+            } else return 'Unable to fetch report, Check your org for details';
         } else if (result.response.numberComponentErrors > 0) {
             return this.constructComponentErrorMessage(result.response.details.componentFailures, this.logger);
         } else if (result.response.details.runTestResult) {
@@ -181,7 +201,10 @@ export default class DeploySourceToOrgImpl implements DeploymentExecutor {
 
         // Wait for polling to finish and get the DeployResult object
         const hoursInWaitTime = Number(this.deploymentOptions.waitTime) / 60;
-        const result = await deploy.pollStatus({ frequency: Duration.seconds(30), timeout: Duration.hours(hoursInWaitTime) });
+        const result = await deploy.pollStatus({
+            frequency: Duration.seconds(30),
+            timeout: Duration.hours(hoursInWaitTime),
+        });
         return result;
     }
 

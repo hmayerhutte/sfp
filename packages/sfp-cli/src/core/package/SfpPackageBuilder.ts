@@ -11,7 +11,6 @@ import { Artifact } from '../artifacts/ArtifactFetcher';
 import SfpPackage, { DiffPackageMetadata, PackageType, SfpPackageParams } from './SfpPackage';
 import PropertyFetcher from './propertyFetchers/PropertyFetcher';
 import AssignPermissionSetFetcher from './propertyFetchers/AssignPermissionSetFetcher';
-import DestructiveManifestPathFetcher from './propertyFetchers/DestructiveManifestPathFetcher';
 import ReconcilePropertyFetcher from './propertyFetchers/ReconcileProfilePropertyFetcher';
 import CreateUnlockedPackageImpl from './packageCreators/CreateUnlockedPackageImpl';
 import CreateSourcePackageImpl from './packageCreators/CreateSourcePackageImpl';
@@ -42,7 +41,6 @@ export default class SfpPackageBuilder {
 
         let propertyFetchers: PropertyFetcher[] = [
             new AssignPermissionSetFetcher(),
-            new DestructiveManifestPathFetcher(),
             new ReconcilePropertyFetcher(),
         ];
 
@@ -76,16 +74,9 @@ export default class SfpPackageBuilder {
 
         sfpPackage = SfpPackageBuilder.handleVersionNumber(params, sfpPackage, packageCreationParams);
 
-        // Requires destructiveChangesPath which is set by the property fetcher
         sfpPackage.workingDirectory = await SfpPackageContentGenerator.generateSfpPackageDirectory(
             logger,
-            sfpPackage.projectDirectory,
-            sfpPackage.projectConfig,
-            sfpPackage.packageName,
-            sfpPackage.packageDescriptor.path,
-            sfpPackage.versionNumber,
-            sfpPackage.destructiveChangesPath,
-            sfpPackage.configFilePath,
+            sfpPackage,
             params?.pathToReplacementForceIgnore
         );
 

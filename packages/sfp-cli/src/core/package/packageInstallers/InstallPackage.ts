@@ -21,7 +21,7 @@ import { ComponentSet } from '@salesforce/source-deploy-retrieve';
 import PackageComponentPrinter from '../../display/PackageComponentPrinter';
 import DeployErrorDisplayer from '../../display/DeployErrorDisplayer';
 import { PreDeployersRegistry } from '../deploymentCustomizers/PreDeployersRegistry';
-import { AnalyzerRegistry } from '../analyser/AnalyzerRegistry';
+
 
 export class SfpPackageInstallationOptions {
     installationkey?: string;
@@ -225,7 +225,7 @@ export abstract class InstallPackage {
         } else if(this.sfpPackage.packageType == PackageType.Diff) 
         {
           // If diff package, check if there are any changes to be deployed, else skip
-           if(!this.sfpPackage.destructiveChanges && this.sfpPackage.metadataCount==0)
+           if(this.sfpPackage.metadataCount==0)
            { 
             return false;
            }
@@ -360,19 +360,6 @@ export abstract class InstallPackage {
         let componentSet = ComponentSet.fromSource(
             path.join(this.sfpPackage.projectDirectory, this.sfpPackage.packageDirectory)
         );
-
-        let analyzers = AnalyzerRegistry.getAnalyzers();
-        for (const analyzer of analyzers) {
-            if(await analyzer.isEnabled(this.sfpPackage, this.logger)) 
-            {
-              SFPLogger.log(`Executing ${COLOR_KEY_MESSAGE(analyzer.getName())}`, LoggerLevel.INFO, this.logger);
-              this.sfpPackage = await analyzer.analyze(this.sfpPackage,componentSet, this.logger);
-            }
-            else
-            {
-                SFPLogger.log(`Skipped ${COLOR_KEY_MESSAGE(analyzer.getName())}`, LoggerLevel.INFO, this.logger);
-            }
-        }
 
         for (const preDeployer of PreDeployersRegistry.getPreDeployers()) {
             try {

@@ -36,8 +36,8 @@ export default class FTAnalyser implements PackageAnalyzer {
             ftFields = await this.addFieldsFromComponentSet(ftFields, componentSet);
 
             if (Object.keys(ftFields).length>0) {
-                sfpPackage['isFTFieldFound'] = true;
-                sfpPackage['ftFields'] = ftFields;
+                sfpPackage.isFTFieldFound = true;
+                sfpPackage.ftFields = ftFields;
             }
         } catch (error) {
             //Ignore error for now

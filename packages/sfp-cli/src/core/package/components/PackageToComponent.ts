@@ -6,9 +6,10 @@ export default class PackageToComponent {
     public constructor(private packageName:string,private packageDirectory:string) {}
 
     public generateComponents() {
-        const components: Component[] = [];
+        const components: Component[] = []; 
 
         let componentSet = ComponentSet.fromSource(this.packageDirectory);
+       
 
         let componentSetArray = componentSet.getSourceComponents().toArray();
 

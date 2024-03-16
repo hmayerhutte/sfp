@@ -1,6 +1,8 @@
 import { ComponentSet, MetadataConverter } from '@salesforce/source-deploy-retrieve';
 import path from 'path';
 import SFPLogger, { Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
+import fs from 'fs-extra';
+import SfpPackage from '../SfpPackage';
 
 export default class SourceToMDAPIConvertor {
     public constructor(
@@ -21,10 +23,14 @@ export default class SourceToMDAPIConvertor {
         if (this.projectDirectory != null)
             resolvedSourceDirectory = path.resolve(this.projectDirectory, this.sourceDirectory);
 
+            
         //Build component set from provided source directory
         let componentSet = ComponentSet.fromSource({
             fsPaths: [resolvedSourceDirectory],
         });
+
+        //Filter 
+         
 
         if (this.sourceApiVersion) componentSet.sourceApiVersion = this.sourceApiVersion;
 
@@ -48,5 +54,43 @@ export default class SourceToMDAPIConvertor {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
         return result;
+    }
+
+    private handleDestructiveComponents(
+        sfpPackage: SfpPackage,
+        resolvedSourceDirectory: string,
+        componentSet: ComponentSet
+    ) {
+      
+        let postDestructiveComponentSet: ComponentSet;
+        let preDestructiveComponentSet: ComponentSet;
+
+        if (sfpPackage.preDestructiveChanges) {
+            componentSet.forceIgnoredPaths.delete(`**/pre-destructive'`);
+            preDestructiveComponentSet = ComponentSet.fromSource(
+                path.resolve(resolvedSourceDirectory, 'pre-destructive')
+            );
+        }
+
+        //Get post destructive components
+        if (sfpPackage.postDestructiveChanges) {
+            componentSet.forceIgnoredPaths.delete(`**/post-destructive'`);
+            postDestructiveComponentSet = ComponentSet.fromSource(
+                path.resolve(resolvedSourceDirectory, 'post-destructive')
+            );
+        }
+      
+        //Filter componentSet by preDestructiveComponentSet
+        if (preDestructiveComponentSet) {
+            componentSet = componentSet.filter((sourceComponent) => {
+                return !preDestructiveComponentSet.has(sourceComponent);
+            });
+        }
+        if (postDestructiveComponentSet) {
+            componentSet = componentSet.filter((sourceComponent) => {
+                return !postDestructiveComponentSet.has(sourceComponent);
+            });
+        }
+         return componentSet;
     }
 }

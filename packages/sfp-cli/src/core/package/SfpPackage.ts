@@ -26,8 +26,6 @@ class PackageInfo {
     isPromoted?: boolean;
     tag?: string;
     isDependencyValidated?: boolean;
-    destructiveChanges?: any;
-    destructiveChangesPath?: string;
     payload?: any;
     metadataCount?: number;
     sourceDir?: string;
@@ -37,6 +35,10 @@ class PackageInfo {
     creation_details?: { creation_time?: number; timestamp?: number };
     deployments?: { target_org: string; sub_directory?: string; installation_time?: number; timestamp?: number }[];
     apiVersion?: string;
+    preDestructiveChangesRequired?: boolean;
+    preDestructiveChanges?: any;
+    postDestructiveChanges?:any
+    postDestructiveChangesRequired?:boolean;
     postDeploymentScript?: string;
     preDeploymentScript?: string;
     apexClassWithOutTestClasses?: ApexClasses;
@@ -46,6 +48,10 @@ class PackageInfo {
     commitSHAFrom?:string;
     commitSHATo?:string;
     packageDirectory?: string;
+    isFTFieldFound?: boolean;
+    isFHTFieldFound?: boolean;
+    fhtFields?: { [key: string]: string[] };
+    ftFields?: { [key: string]: string[] };
     apexClassesSortedByTypes?: ApexSortedByType;
     projectConfig?: any;
     changelogFilePath?: string;

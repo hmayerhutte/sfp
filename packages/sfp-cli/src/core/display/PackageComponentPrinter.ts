@@ -9,15 +9,17 @@ export default class PackageComponentPrinter {
         if (components === null || components === undefined) return;
 
         let table = new Table({
-            head: ['Metadata Type', 'API Name'],
+            head: ['Metadata Type', 'API Name','Deployment Change Type'],
             chars: ZERO_BORDER_TABLE
         });
 
         let componentArray = components.toArray();
         componentArray.sort((a, b) => a.type.name.localeCompare(b.type.name));
 
+       
+
         for (const component of componentArray) {
-            let item = [component.type.name, component.fullName];
+            let item = [component.type.name, component.fullName,component.getDestructiveChangesType()? `destruct(${component.getDestructiveChangesType()})`:`deploy`];
             table.push(item);
         }
 
