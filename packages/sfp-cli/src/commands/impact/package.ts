@@ -9,6 +9,8 @@ import ImpactedPackageResolver, { ImpactedPackageProps } from '../../impl/impact
 const Table = require('cli-table');
 import path from 'path';
 import * as fs from 'fs-extra';
+import ImpactedPackagesDisplayer from '../../core/display/ImpactedPackagesDisplayer';
+import { LoggerLevel } from '@flxbl-io/sfp-logger';
 
 
 Messages.importMessagesDirectory(__dirname);
@@ -41,13 +43,10 @@ export default class Package extends SfpCommand {
         const impactedPackageResolver = new ImpactedPackageResolver(this.props, new ConsoleLogger());
 
         let packagesToBeBuiltWithReasons = await impactedPackageResolver.getImpactedPackages();
-        let packageDiffTable = this.createDiffPackageScheduledDisplayedAsATable(packagesToBeBuiltWithReasons);
         const packagesToBeBuilt = Array.from(packagesToBeBuiltWithReasons.keys());
-
-        //Log Packages to be built
-        SFPLogger.log(COLOR_KEY_MESSAGE('Packages impacted...'));
-        SFPLogger.log(packageDiffTable.toString());
-
+        SFPLogger.log(COLOR_KEY_MESSAGE('Packages impacted...'),LoggerLevel.INFO,new ConsoleLogger());  
+        ImpactedPackagesDisplayer.displayImpactedPackages(packagesToBeBuiltWithReasons, new ConsoleLogger());
+       
         
         const outputPath = path.join(process.cwd(), 'impacted-package.json');
         if (packagesToBeBuilt && packagesToBeBuilt.length > 0)
@@ -59,22 +58,7 @@ export default class Package extends SfpCommand {
        return packagesToBeBuilt;
     }
 
-    private createDiffPackageScheduledDisplayedAsATable(packagesToBeBuilt: Map<string, any>) {
-        let tableHead = ['Package', 'Reason', 'Last Known Tag'];
-        let table = new Table({
-            head: tableHead,
-            chars: ZERO_BORDER_TABLE,
-        });
-        for (const pkg of packagesToBeBuilt.keys()) {
-            let item = [
-                pkg,
-                packagesToBeBuilt.get(pkg).reason,
-                packagesToBeBuilt.get(pkg).tag ? packagesToBeBuilt.get(pkg).tag : '',
-            ];
-            table.push(item);
-        }
-        return table;
-    }
+
 
  
 }
