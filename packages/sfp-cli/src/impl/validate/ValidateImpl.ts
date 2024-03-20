@@ -600,7 +600,11 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
         devhubUserName?: string
     ): Promise<{ isToFailDeployment: boolean; message?: string }> {
         //Trigger Tests after installation of each package
-        if (this.impactedPackagesAsPerBranch && this.impactedPackagesAsPerBranch.get(sfpPackage.package_name)) {
+        let isPackageImpacted = this.impactedPackagesAsPerBranch
+            ? this.impactedPackagesAsPerBranch.get(sfpPackage.package_name)
+            : true;
+
+        if (isPackageImpacted) {
             if (sfpPackage.packageType && sfpPackage.packageType != PackageType.Data) {
                 if (packageInstallationResult.result === PackageInstallationStatus.Succeeded) {
                     //Get Changed Components

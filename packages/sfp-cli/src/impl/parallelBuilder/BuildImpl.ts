@@ -759,6 +759,9 @@ export default class BuildImpl {
 
 
 
+		let isPackageImpacted = this.props.impactedPackagesAsPerBranch
+		? this.props.impactedPackagesAsPerBranch.get(sfdx_package)
+		: true;
 
 		return SfpPackageBuilder.buildPackageFromProjectDirectory(
 			new FileLogger(`.sfpowerscripts/logs/${sfdx_package}`),
@@ -767,7 +770,7 @@ export default class BuildImpl {
 			{
 				overridePackageTypeWith: this.props.overridePackageTypes ? this.props.overridePackageTypes[sfdx_package] : undefined,
 				branch: this.props.branch,
-				sourceVersion: this.props.impactedPackagesAsPerBranch?.get(sfdx_package)==null?this.base_branch_commit_id:this.commit_id,
+				sourceVersion: isPackageImpacted?this.commit_id:this.base_branch_commit_id,
 				repositoryUrl: this.repository_url,
 				configFilePath: configFilePath,
 				pathToReplacementForceIgnore: this.getPathToForceIgnoreForCurrentStage(
