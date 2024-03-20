@@ -47,6 +47,9 @@ export default class ValidateAgainstOrg extends SfpCommand {
             default: false,
         }),
         logsgroupsymbol,
+        branch: Flags.string({
+            description: messages.getMessage('baseBranchFlagDescription'),
+        }),
         basebranch: Flags.string({
             description: messages.getMessage('baseBranchFlagDescription'),
         }),
@@ -119,6 +122,7 @@ export default class ValidateAgainstOrg extends SfpCommand {
                 logsGroupSymbol: this.flags.logsgroupsymbol,
                 targetOrg: this.flags.targetorg,
                 diffcheck: this.flags.diffcheck,
+                branch: this.flags.branch,
                 baseBranch: this.flags.basebranch,
                 disableArtifactCommit: true,
                 disableSourcePackageOverride: this.flags.disablesourcepkgoverride,

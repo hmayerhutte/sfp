@@ -61,6 +61,7 @@ export interface BuildProps {
 	baseBranch?: string;
 	diffOptions?: PackageDiffOptions;
 	includeOnlyPackages?: string[];
+	impactedPackagesAsPerBranch?: Map<string, string[]>;
 }
 export default class BuildImpl {
 	private limiter: Bottleneck;
@@ -80,12 +81,14 @@ export default class BuildImpl {
 
 	private repository_url: string;
 	private commit_id: string;
+	private base_branch_commit_id: string;
 
 	private logger = new ConsoleLogger();
 	private recursiveAll = (a) =>
 		Promise.all(a).then((r) =>
 			r.length == a.length ? r : this.recursiveAll(a),
 		);
+	
 
 	public constructor(private props: BuildProps) {
 		this.limiter = new Bottleneck({
@@ -111,6 +114,8 @@ export default class BuildImpl {
 		let git = await Git.initiateRepo(new ConsoleLogger());
 		this.repository_url = await git.getRemoteOriginUrl(this.props.repourl);
 		this.commit_id = await git.getHeadCommit();
+		if(this.props.baseBranch)
+		 this.base_branch_commit_id = await git.getBaseBranchCommit(this.props.baseBranch);
 
 		this.packagesToBeBuilt = this.getPackagesToBeBuilt(
 			this.props.projectDirectory,
@@ -762,7 +767,7 @@ export default class BuildImpl {
 			{
 				overridePackageTypeWith: this.props.overridePackageTypes ? this.props.overridePackageTypes[sfdx_package] : undefined,
 				branch: this.props.branch,
-				sourceVersion: this.commit_id,
+				sourceVersion: this.props.impactedPackagesAsPerBranch?.get(sfdx_package)==null?this.base_branch_commit_id:this.commit_id,
 				repositoryUrl: this.repository_url,
 				configFilePath: configFilePath,
 				pathToReplacementForceIgnore: this.getPathToForceIgnoreForCurrentStage(
