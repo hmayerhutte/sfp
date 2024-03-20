@@ -431,24 +431,19 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
             return overridedPackages;
         }
 
-		function fetchPackagesAsPerReleaseConfig(
-			logger: Logger,
-			props: ValidateProps,
-		) {
-			if (
-				props.validationMode ===
-				ValidationMode.FASTFEEDBACK_LIMITED_BY_RELEASE_CONFIG ||
-				props.validationMode ===
-				ValidationMode.THOROUGH_LIMITED_BY_RELEASE_CONFIG
-			) {
-				let includeOnlyPackages = [];
-				if (props.releaseConfigPaths?.length > 0) {
-					let releaseConfigAggregatedLoader = new ReleaseConfigAggregator(logger);
-					releaseConfigAggregatedLoader.addReleaseConfigs(props.releaseConfigPaths,true); 
-					includeOnlyPackages = releaseConfigAggregatedLoader.getAllPackages();
-					printIncludeOnlyPackages(includeOnlyPackages);
-			}
-			return includeOnlyPackages;
+        function fetchPackagesAsPerReleaseConfig(logger: Logger, props: ValidateProps) {
+            if (
+                props.validationMode === ValidationMode.FASTFEEDBACK_LIMITED_BY_RELEASE_CONFIG ||
+                props.validationMode === ValidationMode.THOROUGH_LIMITED_BY_RELEASE_CONFIG
+            ) {
+                let includeOnlyPackages = [];
+                if (props.releaseConfigPaths?.length > 0) {
+                    let releaseConfigAggregatedLoader = new ReleaseConfigAggregator(logger);
+                    releaseConfigAggregatedLoader.addReleaseConfigs(props.releaseConfigPaths,true);
+                    includeOnlyPackages = releaseConfigAggregatedLoader.getAllPackages();
+                    printIncludeOnlyPackages(includeOnlyPackages);
+                }
+                return includeOnlyPackages;
 
                 function printIncludeOnlyPackages(includeOnlyPackages: string[]) {
                     SFPLogger.log(
