@@ -8,6 +8,7 @@
     "deleteScratchOrgFlagDescription": "Delete scratch-org validation environment, after the command has finished running",
     "keysFlagDescription": "Keys to be used while installing any managed package dependencies. Required format is a string of key-value pairs separated by spaces e.g. packageA:pw123 packageB:pw123 packageC:pw123",
     "baseBranchFlagDescription": "The pull request base branch",
+    "branchFlagDescription": "The pull request branch",
     "tagFlagDescription": "Tag the build with a label, useful to identify in metrics",
     "disableDiffCheckFlagDescription": "Disables diff check while validating, this will validate all the packages in the repository",
     "disableArtifactUpdateFlagDescription": "Do not update information about deployed artifacts to the org",

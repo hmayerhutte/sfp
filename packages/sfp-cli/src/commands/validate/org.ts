@@ -48,7 +48,7 @@ export default class ValidateAgainstOrg extends SfpCommand {
         }),
         logsgroupsymbol,
         branch: Flags.string({
-            description: messages.getMessage('baseBranchFlagDescription'),
+            description: messages.getMessage('branchFlagDescription'),
         }),
         basebranch: Flags.string({
             description: messages.getMessage('baseBranchFlagDescription'),

@@ -6,6 +6,7 @@
     "diffCheckFlagDescription": "Only build the packages which have changed by analyzing previous tags",
     "disableArtifactUpdateFlagDescription": "Do not update information about deployed artifacts to the org",
     "baseBranchFlagDescription": "The pull request base branch",
+    "branchFlagDescription": "The pull request branch",
     "fastfeedbackFlagDescription": "Enable validation in fast feedback mode, In fast feedback mode, validation will only do selective deployment of changed components and selective tests",
     "releaseConfigFileFlagDescription":"(Required if the release modes are ff-relese-config or thorough-release-config), Path to the config file which determines which impacted domains need to be validated",
     "devhubAliasFlagDescription": "Provide the alias of the devhub previously authenticated, used for installing or updating dependency in individual/thorough modes",

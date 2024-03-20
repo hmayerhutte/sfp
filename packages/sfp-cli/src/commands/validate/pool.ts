@@ -68,6 +68,9 @@ export default class ValidateAgainstPool extends SfpCommand {
             required: false,
             description: messages.getMessage('keysFlagDescription'),
         }),
+        branch: Flags.string({
+            description: messages.getMessage('branchFlagDescription'),
+        }),
         basebranch: Flags.string({
             description: messages.getMessage('baseBranchFlagDescription'),
         }),
@@ -148,6 +151,7 @@ export default class ValidateAgainstPool extends SfpCommand {
                 shapeFile: this.flags.shapefile,
                 isDeleteScratchOrg: this.flags.deletescratchorg,
                 keys: this.flags.keys,
+                branch: this.flags.branch,
                 baseBranch: this.flags.basebranch,
                 diffcheck: !this.flags.disablediffcheck,
                 disableArtifactCommit: true,
