@@ -434,7 +434,16 @@ export default class DeployImpl {
         } else alwaysDeployMessage = undefined;
 
         //Display header
-        SFPLogger.printHeaderLine(`Installing artifact:${pkg}`, COLOR_HEADER, LoggerLevel.INFO, this.props.logger);
+        let message = 'Installing';
+        if (this.props.currentStage == Stage.VALIDATE) {
+            if (this.props.impactedPackagesAsPerBranch) {
+                let isPackageImpacted = this.props.impactedPackagesAsPerBranch?.get(pkg);
+                message = isPackageImpacted ? 'Validating' : 'Synchronizing';
+            } else {
+                message = 'Validating';
+            }
+        }
+        SFPLogger.printHeaderLine(`${message} artifact:${pkg}`, COLOR_HEADER, LoggerLevel.INFO, this.props.logger);
         SFPLogger.log(COLOR_HEADER(`Name: ${COLOR_KEY_MESSAGE(pkg)}`), LoggerLevel.INFO, this.props.logger);
         SFPLogger.log(`Type: ${COLOR_KEY_MESSAGE(sfpPackage.packageType)}`, LoggerLevel.INFO, this.props.logger);
         SFPLogger.log(
@@ -765,14 +774,7 @@ export default class DeployImpl {
         installationOptions.optimizeDeployment = this.isOptimizedDeploymentForSourcePackage(pkgDescriptor);
         installationOptions.skipTesting = skipTesting;
         installationOptions.deploymentType = deploymentType;
-        if (this.props.impactedPackagesAsPerBranch?.get(sfpPackage.packageName)) {
-            installationOptions.disableArtifactCommit = true;
-        } else if (
-            this.props.impactedPackagesAsPerBranch &&
-            !this.props.impactedPackagesAsPerBranch.get(sfpPackage.packageName)
-        ) {
-            installationOptions.disableArtifactCommit = false;
-        } else installationOptions.disableArtifactCommit = this.props.disableArtifactCommit;
+        installationOptions.disableArtifactCommit = this.props.disableArtifactCommit;
 
         //During validate, if optimizeDeploymentMode is false, use full local tests to validate
         //but respect skipTesting #issue 1075

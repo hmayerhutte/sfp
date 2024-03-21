@@ -70,6 +70,7 @@ export default class ValidateAgainstPool extends SfpCommand {
         }),
         ref: Flags.string({
             aliases: ['branch'],
+            dependsOn: ['baseRef'],
             description: messages.getMessage('refFlagDescription'),
         }),
         baseRef: Flags.string({

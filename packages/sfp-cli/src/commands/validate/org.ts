@@ -40,15 +40,13 @@ export default class ValidateAgainstOrg extends SfpCommand {
             default: false,
         }),
         disableartifactupdate: Flags.boolean({
-            deprecated: {
-              message: "--disableartifactupdate flag is deprecated, Artifacts used for validation are never recorded in the org "
-            },
             description: messages.getMessage('disableArtifactUpdateFlagDescription'),
             default: false,
         }),
         logsgroupsymbol,
         ref: Flags.string({
             aliases: ['branch'],
+            dependsOn: ['baseRef'],
             description: messages.getMessage('refFlagDescription'),
         }),
         baseRef: Flags.string({
@@ -133,7 +131,7 @@ export default class ValidateAgainstOrg extends SfpCommand {
                 diffcheck: this.flags.diffcheck,
                 branch: this.flags.ref,
                 baseBranch: this.flags.baseRef,
-                disableArtifactCommit: true,
+                disableArtifactCommit: this.flags.disableartifactupdate,
                 disableSourcePackageOverride: this.flags.disablesourcepkgoverride,
                 disableParallelTestExecution: this.flags.disableparalleltesting,
                 orgInfo: this.flags.orginfo,
