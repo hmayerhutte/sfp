@@ -178,7 +178,8 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
                 },
             };
 
-            const impactedPackageResolver = new ImpactedPackageResolver(impactedPackageDiffProps, new ConsoleLogger());
+            SFPLogger.log(COLOR_KEY_MESSAGE(`Computing impacted packages as per the PR.Please wait..`), LoggerLevel.INFO,this.logger);
+            const impactedPackageResolver = new ImpactedPackageResolver(impactedPackageDiffProps,this.logger);
             return impactedPackageResolver.getImpactedPackages();
         }
     }

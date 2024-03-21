@@ -47,11 +47,13 @@ export default class ValidateAgainstOrg extends SfpCommand {
             default: false,
         }),
         logsgroupsymbol,
-        branch: Flags.string({
-            description: messages.getMessage('branchFlagDescription'),
+        ref: Flags.string({
+            aliases: ['branch'],
+            description: messages.getMessage('refFlagDescription'),
         }),
-        basebranch: Flags.string({
-            description: messages.getMessage('baseBranchFlagDescription'),
+        baseRef: Flags.string({
+            aliases: ['basebranch'],
+            description: messages.getMessage('baseRefFlagDescription'),
         }),
         orginfo: Flags.boolean({
             description: messages.getMessage('orgInfoFlagDescription'),
@@ -101,6 +103,13 @@ export default class ValidateAgainstOrg extends SfpCommand {
                 )}`
             )
         );
+        if(this.flags.ref) {
+            SFPLogger.log(COLOR_HEADER(`Ref: ${this.flags.ref}`));
+        }
+        if(this.flags.baseRef) {
+            SFPLogger.log(COLOR_HEADER(`Base Ref: ${this.flags.baseRef}`));
+        }
+
         if (this.flags.mode != ValidationMode.FAST_FEEDBACK) {
             SFPLogger.log(COLOR_HEADER(`Coverage Percentage: ${this.flags.coveragepercent}`));
         }
@@ -122,8 +131,8 @@ export default class ValidateAgainstOrg extends SfpCommand {
                 logsGroupSymbol: this.flags.logsgroupsymbol,
                 targetOrg: this.flags.targetorg,
                 diffcheck: this.flags.diffcheck,
-                branch: this.flags.branch,
-                baseBranch: this.flags.basebranch,
+                branch: this.flags.ref,
+                baseBranch: this.flags.baseRef,
                 disableArtifactCommit: true,
                 disableSourcePackageOverride: this.flags.disablesourcepkgoverride,
                 disableParallelTestExecution: this.flags.disableparalleltesting,

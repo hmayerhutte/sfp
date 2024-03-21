@@ -68,11 +68,13 @@ export default class ValidateAgainstPool extends SfpCommand {
             required: false,
             description: messages.getMessage('keysFlagDescription'),
         }),
-        branch: Flags.string({
-            description: messages.getMessage('branchFlagDescription'),
+        ref: Flags.string({
+            aliases: ['branch'],
+            description: messages.getMessage('refFlagDescription'),
         }),
-        basebranch: Flags.string({
-            description: messages.getMessage('baseBranchFlagDescription'),
+        baseRef: Flags.string({
+            aliases: ['basebranch'],
+            description: messages.getMessage('baseRefFlagDescription'),
         }),
         tag: Flags.string({
             description: messages.getMessage('tagFlagDescription'),
@@ -129,6 +131,14 @@ export default class ValidateAgainstPool extends SfpCommand {
         if (this.flags.mode != ValidationMode.FAST_FEEDBACK) {
             SFPLogger.log(COLOR_HEADER(`Coverage Percentage: ${this.flags.coveragepercent}`));
         }
+
+        if(this.flags.ref) {
+            SFPLogger.log(COLOR_HEADER(`Ref: ${this.flags.ref}`));
+        }
+        if(this.flags.baseRef) {
+            SFPLogger.log(COLOR_HEADER(`Base Ref: ${this.flags.baseRef}`));
+        }
+
        
        
 
@@ -151,8 +161,8 @@ export default class ValidateAgainstPool extends SfpCommand {
                 shapeFile: this.flags.shapefile,
                 isDeleteScratchOrg: this.flags.deletescratchorg,
                 keys: this.flags.keys,
-                branch: this.flags.branch,
-                baseBranch: this.flags.basebranch,
+                branch: this.flags.ref,
+                baseBranch: this.flags.baseRef,
                 diffcheck: !this.flags.disablediffcheck,
                 disableArtifactCommit: true,
                 orgInfo: this.flags.orginfo,
