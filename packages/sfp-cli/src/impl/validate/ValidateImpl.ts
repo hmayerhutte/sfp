@@ -375,6 +375,7 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
             devhubAlias: this.props.hubOrg?.getUsername(),
             baselineOrgAlias: this.props.targetOrg,
             impactedPackagesAsPerBranch: this.impactedPackagesAsPerBranch,
+            ref: this.props.branch,
         };
 
         //Build DiffOptions

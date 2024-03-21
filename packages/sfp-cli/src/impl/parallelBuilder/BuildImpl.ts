@@ -62,6 +62,7 @@ export interface BuildProps {
 	diffOptions?: PackageDiffOptions;
 	includeOnlyPackages?: string[];
 	impactedPackagesAsPerBranch?: Map<string, string[]>;
+	ref?: string;
 }
 export default class BuildImpl {
 	private limiter: Bottleneck;
@@ -113,7 +114,7 @@ export default class BuildImpl {
 
 		let git = await Git.initiateRepo(new ConsoleLogger());
 		this.repository_url = await git.getRemoteOriginUrl(this.props.repourl);
-		this.commit_id = await git.getHeadCommit();
+		this.commit_id = this.props.impactedPackagesAsPerBranch? this.props.ref:await git.getHeadCommit();
 		if(this.props.baseBranch)
 		 this.base_branch_commit_id = await git.getBaseBranchCommit(this.props.baseBranch);
 
