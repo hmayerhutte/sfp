@@ -115,7 +115,7 @@ export default class SFPOrg extends Org {
 
         SFPLogger.log(
             COLOR_KEY_MESSAGE(
-                `Updated Org with new Artifact ${packageName} ${sfpPackage.package_version_number} ${
+                `Updated Org with new Artifact ${packageName} ${sfpPackage.sourceVersion} ${sfpPackage.package_version_number} ${
                     artifactId ? artifactId : ''
                 }`
             ),
