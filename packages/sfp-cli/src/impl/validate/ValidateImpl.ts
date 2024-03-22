@@ -295,7 +295,7 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
             skipIfPackageInstalled: false,
             logsGroupSymbol: this.props.logsGroupSymbol,
             currentStage: Stage.VALIDATE,
-            disableArtifactCommit: this.props.disableArtifactCommit,
+            disableArtifactCommit: false, //always set to false, let post deploy determine
             impactedPackagesAsPerBranch: this.impactedPackagesAsPerBranch,
             selectiveComponentDeployment:
                 this.props.validationMode == ValidationMode.FAST_FEEDBACK ||
@@ -632,6 +632,10 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
                         FileOutputHandler.getInstance().appendOutput(`validation-error.md`, `Reasons:`);
                         FileOutputHandler.getInstance().appendOutput(`validation-error.md`, `${testResult.message}`);
                     }
+                    else
+                    {
+                        await this.updateOrgWithArtifact(targetUsername, sfpPackage);
+                    }
 
                     return {
                         isToFailDeployment: !testResult.result,
@@ -639,13 +643,25 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
                     };
                 }
             }
+            else if (sfpPackage.packageType && sfpPackage.packageType == PackageType.Data) {
+                 await this.updateOrgWithArtifact(targetUsername, sfpPackage);
+            }
         } else {
             SFPLogger.log(
                 COLOR_KEY_MESSAGE(`Syncing ${sfpPackage.package_name} to the org, Tests will be skipped`),
                 LoggerLevel.INFO,
                 this.logger
             );
+            await this.updateOrgWithArtifact(targetUsername, sfpPackage);
         }
         return { isToFailDeployment: false };
+    }
+
+    private async updateOrgWithArtifact(targetUsername: string, sfpPackage: SfpPackage) {
+        if(!this.props.disableArtifactCommit)
+        {
+            const sfpOrg = await SFPOrg.create({ aliasOrUsername: targetUsername });
+            await sfpOrg.updateArtifactInOrg(this.logger, sfpPackage);
+        }
     }
 }
