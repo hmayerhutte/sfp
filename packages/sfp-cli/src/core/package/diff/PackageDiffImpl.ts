@@ -71,7 +71,7 @@ export default class PackageDiffImpl {
                 {
                     SFPLogger.log(COLOR_WARNING(dedent(`Unable to compute diff, 
                     The head of the branch is not reachable from the commit id ${tag} for ${this.sfdx_package}
-                    Attempting to build the package without diffing against the previous version`),LoggerLevel.INFO,this.logger));
+                    Attempting to build the package without diffing against the previous version`)),LoggerLevel.INFO,this.logger);
                     return { isToBeBuilt: true, reason: `Previous version is from an earlier branch` };
                 }
                 else
