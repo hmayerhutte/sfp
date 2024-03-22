@@ -36,7 +36,9 @@ jobs:
         node-version: 20
         registry-url: https://npm.pkg.github.com/
 
-     - run: npm publish
+     - run: |
+         cd packages/sfp-cli
+         npm publish
        env:
          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
        if: ${{ steps.release.outputs.release_created }}
