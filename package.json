@@ -1,7 +1,7 @@
 {
     "name": "sfp",
     "private": true,
-    "license": "MIT",
+    "license": "BSL-1.1",
     "scripts": {
         "format": "npx prettier --write .",
         "preinstall": "npx only-allow pnpm"
