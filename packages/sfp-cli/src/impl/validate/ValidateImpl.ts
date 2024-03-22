@@ -2,7 +2,7 @@ import BuildImpl, { BuildProps } from '../parallelBuilder/BuildImpl';
 import DeployImpl, { DeploymentMode, DeployProps, DeploymentResult } from '../deploy/DeployImpl';
 import ArtifactGenerator from '../../core/artifacts/generators/ArtifactGenerator';
 import { Stage } from '../Stage';
-import SFPLogger, { COLOR_KEY_VALUE, COLOR_TRACE, ConsoleLogger, Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
+import SFPLogger, { COLOR_KEY_VALUE, ConsoleLogger, Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 import {
     PackageInstallationResult,
     PackageInstallationStatus,
@@ -138,7 +138,7 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
                 ImpactedPackagesDisplayer.displayImpactedPackages(this.impactedPackagesAsPerBranch, this.logger);
             }
 
-            let builtSfpPackages = await this.buildImpactedPackages(packagesInstalledInOrgMappedToCommits);
+            await this.buildImpactedPackages(packagesInstalledInOrgMappedToCommits);
             deploymentResult = await this.deployPackages(targetUserName);
 
             if (deploymentResult.failed.length > 0 || deploymentResult.error)

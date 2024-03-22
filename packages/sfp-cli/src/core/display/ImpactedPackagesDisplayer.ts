@@ -1,4 +1,4 @@
-import SFPLogger, { COLOR_KEY_MESSAGE, Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
+import SFPLogger, { Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 import { ZERO_BORDER_TABLE } from './TableConstants';
 const Table = require('cli-table');
 
