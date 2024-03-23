@@ -23,7 +23,6 @@ import GroupConsoleLogs from '../../ui/GroupConsoleLogs';
 import { ZERO_BORDER_TABLE } from '../../ui/TableConstants';
 import convertBuildNumDotDelimToHyphen from '../../core/utils/VersionNumberConverter';
 import ReleaseConfigLoader from '../release/ReleaseConfigLoader';
-import fs from 'fs-extra';
 import { Align, getMarkdownTable } from 'markdown-table-ts';
 import FileOutputHandler from '../../outputs/FileOutputHandler';
 
@@ -657,10 +656,10 @@ export default class DeployImpl {
         function printDeploymentBreakDownInMarkdown() {
             let tableData = {
                 table: {
-                    head: ['Package', 'Version to be installed'],
+                    head: ['Package', this.props.stage==`Validate`?`Version`:`Commit Id`, 'Reason?'],
                     body: [],
                 },
-                alignment: [Align.Left, Align.Left, Align.Left, Align.Right],
+                alignment: [Align.Left, Align.Left, Align.Left, Align.Left],
             };
             for (const pkg of queue) {
                 tableData.table.body.push(getRowForMarkdownTable(pkg));
@@ -676,8 +675,16 @@ export default class DeployImpl {
 
         function getRowForMarkdownTable(pkg: SfpPackage) {
             let packageName = pkg.packageName;
-            let versionNumber = pkg.versionNumber;
-            return [packageName, versionNumber];
+            if (this.props.stage == Stage.VALIDATE) {
+                if (
+                    this.props.impactedPackagesAsPerBranch &&
+                    this.props.impactedPackagesAsPerBranch.get(pkg.packageName)
+                )
+                    return [packageName, pkg.sourceVersion, 'Change Detected,Validating'];
+                else return [packageName, pkg.sourceVersion, 'Sync to latest'];
+            } else {
+                return [packageName, pkg.versionNumber, 'Deploy'];
+            }
         }
     }
 
