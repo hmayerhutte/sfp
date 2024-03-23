@@ -25,6 +25,7 @@ import convertBuildNumDotDelimToHyphen from '../../core/utils/VersionNumberConve
 import ReleaseConfigLoader from '../release/ReleaseConfigLoader';
 import { Align, getMarkdownTable } from 'markdown-table-ts';
 import FileOutputHandler from '../../outputs/FileOutputHandler';
+import { ValidateProps } from '../validate/ValidateImpl';
 
 const Table = require('cli-table');
 const retry = require('async-retry');
@@ -651,9 +652,9 @@ export default class DeployImpl {
         SFPLogger.log(table.toString(), LoggerLevel.INFO, this.props.logger);
         groupSection.end();
 
-        printDeploymentBreakDownInMarkdown();
+        printDeploymentBreakDownInMarkdown(this.props);
 
-        function printDeploymentBreakDownInMarkdown() {
+        function printDeploymentBreakDownInMarkdown(props:DeployProps) {
             let tableData = {
                 table: {
                     head: ['Package', this.props.stage==`Validate`?`Version`:`Commit Id`, 'Reason?'],
@@ -662,7 +663,7 @@ export default class DeployImpl {
                 alignment: [Align.Left, Align.Left, Align.Left, Align.Left],
             };
             for (const pkg of queue) {
-                tableData.table.body.push(getRowForMarkdownTable(pkg));
+                tableData.table.body.push(getRowForMarkdownTable(pkg,props));
             }
 
             const outputHandler: FileOutputHandler = FileOutputHandler.getInstance();
@@ -673,12 +674,12 @@ export default class DeployImpl {
             outputHandler.appendOutput('deployment-breakdown.md', `\n\n${getMarkdownTable(tableData)}`);
         }
 
-        function getRowForMarkdownTable(pkg: SfpPackage) {
+        function getRowForMarkdownTable(pkg: SfpPackage,props:DeployProps) {
             let packageName = pkg.packageName;
             if (this.props.stage == Stage.VALIDATE) {
                 if (
-                    this.props.impactedPackagesAsPerBranch &&
-                    this.props.impactedPackagesAsPerBranch.get(pkg.packageName)
+                    props.impactedPackagesAsPerBranch &&
+                    props.impactedPackagesAsPerBranch.get(pkg.packageName)
                 )
                     return [packageName, pkg.sourceVersion, 'Change Detected,Validating'];
                 else return [packageName, pkg.sourceVersion, 'Sync to latest'];
