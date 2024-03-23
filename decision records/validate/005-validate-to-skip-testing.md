@@ -24,3 +24,13 @@ After reviewing multiple orgs, we've determined there's no added value in trigge
 
 Initially, we considered adding a new flag and specific mode for this feature. However, to simplify adoption and because we foresee no significant impacts, we've decided against introducing a new mode. Instead, we will add flags to capture the SHA ref of the head of the incoming branch and the SHA ref of the base branch. It's crucial to ensure these refs are accurate and do not reflect any temporary detached commit IDs created by CI/CD systems such as GitHub.
 
+This also means the following changes to behavior of how validate works
+
+- Differentiate between packages that need to be synchronized vs validated
+- Allow validate to commit the changed packages in to the target org, reverting earlier change to disableArtifactUpdate,so
+  users can control the behavior required, Ideally disableArtifactUpdate will be set to false, so retries to the same
+  review org within a range of commits will save further time
+- Only commit the packages to an org, if the test pass for validate packages, however commit packages to org immediately for packages that are to be synchronized, when the deployment is succesful
+- Package Diff comparison logic need to be updated to ensure, that if the commit id in the org is incorrect, assume the package is never built
+
+
