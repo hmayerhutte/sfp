@@ -657,7 +657,7 @@ export default class DeployImpl {
         function printDeploymentBreakDownInMarkdown(props:DeployProps) {
             let tableData = {
                 table: {
-                    head: ['Package', this.props.stage==`Validate`?`Version`:`Commit Id`, 'Reason?'],
+                    head: ['Package', props.currentStage==Stage.VALIDATE?`Version`:`Commit Id`, 'Reason?'],
                     body: [],
                 },
                 alignment: [Align.Left, Align.Left, Align.Left, Align.Left],
@@ -676,7 +676,7 @@ export default class DeployImpl {
 
         function getRowForMarkdownTable(pkg: SfpPackage,props:DeployProps) {
             let packageName = pkg.packageName;
-            if (this.props.stage == Stage.VALIDATE) {
+            if (props.currentStage == Stage.VALIDATE) {
                 if (
                     props.impactedPackagesAsPerBranch &&
                     props.impactedPackagesAsPerBranch.get(pkg.packageName)
