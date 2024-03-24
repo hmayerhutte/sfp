@@ -1,7 +1,6 @@
 {
   "packages": {
     "packages/sfp-cli": {
-      "release-as": "38.0.0"
     }
   }
 }
