@@ -1,5 +1,12 @@
 # Changelog
 
+## [38.0.1](https://github.com/flxbl-io/sfp-pro/compare/sfp-v38.0.0...sfp-v38.0.1) (2024-03-24)
+
+
+### Bug Fixes
+
+* **package:** add lerna to deps ([d185b36](https://github.com/flxbl-io/sfp-pro/commit/d185b36063c54d97094ff09bb1e2c9ddb5aa6957))
+
 ## 38.0.0 (2024-03-24)
 
 
