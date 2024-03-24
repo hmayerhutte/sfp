@@ -1,8 +1,8 @@
 {
   "last-release-sha": "0d0d34f893a2149a640bff711e3e2d08cd99b02c",
   "packages": {
-    "packages/sfp-cli": {
-      "release-as": "37.1.3"
+    "./packages/sfp-cli": {
+      "release-as": "38.0.0"
     }
   }
 }
