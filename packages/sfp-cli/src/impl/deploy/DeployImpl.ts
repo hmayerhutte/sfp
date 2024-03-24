@@ -681,8 +681,8 @@ export default class DeployImpl {
                     props.impactedPackagesAsPerBranch &&
                     props.impactedPackagesAsPerBranch.get(pkg.packageName)
                 )
-                    return [packageName, pkg.sourceVersion, '![change detected](https://img.shields.io/badge/change%20detected,validating-yellow.svg)'];
-                else return [packageName, pkg.sourceVersion,`![syncing](https://img.shields.io/badge/syncing-green.svg)`];
+                    return [packageName, pkg.sourceVersion, '![validation](https://img.shields.io/badge/validation-yellow.svg)'];
+                else return [packageName, pkg.sourceVersion,`![sync](https://img.shields.io/badge/sync-green.svg)`];
             } else {
                 return [packageName, pkg.versionNumber, 'Deploy'];
             }
