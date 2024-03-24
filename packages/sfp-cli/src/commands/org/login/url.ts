@@ -13,7 +13,7 @@ import { loglevel } from '../../../flags/sfdxflags';
 import { parseJson } from '@salesforce/kit';
 import * as fs from 'fs';
 import Bottleneck from 'bottleneck';
-import dedent from 'dedent-js';
+import dedent from 'dedent';
 
 Messages.importMessagesDirectory(__dirname);
 

@@ -206,9 +206,6 @@ importers:
       dedent:
         specifier: ^1.5.1
         version: 1.5.1
-      dedent-js:
-        specifier: ^1.0.1
-        version: 1.0.1
       dotenv:
         specifier: 16.3.1
         version: 16.3.1
@@ -4882,10 +4879,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       mimic-response: 3.1.0
-
-  /dedent-js@1.0.1:
-    resolution: {integrity: sha512-OUepMozQULMLUmhxS95Vudo0jb0UchLimi3+pQ2plj61Fcy8axbP9hbiD4Sz6DPqn6XG3kfmziVfQ1rSys5AJQ==}
-    dev: false
 
   /dedent@0.7.0:
     resolution: {integrity: sha512-Q6fKUPqnAHAyhiUgFU7BUzLiv0kd8saH9al7tnu5Q/okj6dnupxyTgFIBjVzJATdfIAm9NAsvXNzjaKa+bxVyA==}

@@ -18,7 +18,7 @@ import ora from 'ora';
 import path from 'path';
 import fs from 'fs';
 import Bottleneck from 'bottleneck';
-import dedent from 'dedent-js';
+import dedent from 'dedent';
 
 
 type DeployError = {

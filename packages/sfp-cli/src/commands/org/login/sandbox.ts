@@ -23,7 +23,7 @@ import { loglevel, targetdevhubusername } from '../../../flags/sfdxflags';
 import fs from 'fs';
 import Table from 'cli-table3';
 import Bottleneck from "bottleneck";
-import dedent from 'dedent-js';
+import dedent from 'dedent';
 
 Messages.importMessagesDirectory(__dirname);
 
