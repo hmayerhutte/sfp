@@ -1,0 +1,7 @@
+{
+  "packages": {
+    "packages/sfp-cli": {
+      "release-as": "37.1.3"
+    }
+  }
+}

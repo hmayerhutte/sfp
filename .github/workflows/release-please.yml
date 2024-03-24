@@ -16,7 +16,8 @@ jobs:
        id: release
        with:
          token: ${{ secrets.GHA_TOKEN }}
-         release-type: node
+         config-file: release-please-config.json
+
 
      - uses: actions/checkout@v4
      - uses: actions/setup-node@v4
@@ -30,6 +31,7 @@ jobs:
 
      - run: pnpm i
      - run: lerna run build
+     - run: lerna run test
 
      - uses: actions/setup-node@v4
        with:
