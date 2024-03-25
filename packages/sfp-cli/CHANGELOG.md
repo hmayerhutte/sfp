@@ -1,5 +1,12 @@
 # Changelog
 
+## [38.0.2](https://github.com/flxbl-io/sfp-pro/compare/sfp-v38.0.1...sfp-v38.0.2) (2024-03-25)
+
+
+### Bug Fixes
+
+* **apextests:** fix incorrect url reference in error message ([7967c4c](https://github.com/flxbl-io/sfp-pro/commit/7967c4ce1a0832d26891513ac91af42f8983e5d2))
+
 ## [38.0.1](https://github.com/flxbl-io/sfp-pro/compare/sfp-v38.0.0...sfp-v38.0.1) (2024-03-24)
 
 
