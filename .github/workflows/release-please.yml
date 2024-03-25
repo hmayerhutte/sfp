@@ -13,13 +13,6 @@ jobs:
      packages: write
    runs-on: ubuntu-latest
    steps:
-     - uses: google-github-actions/release-please-action@v4
-       id: release
-       with:
-         token: ${{ secrets.GHA_TOKEN }}
-         config-file: release-please-config.json
-
-
      - uses: actions/checkout@v4
      - uses: actions/setup-node@v4
        with:
@@ -39,12 +32,18 @@ jobs:
         node-version: 20
         registry-url: https://npm.pkg.github.com/
 
+     - uses: google-github-actions/release-please-action@v4
+       id: release
+       with:
+         token: ${{ secrets.GHA_TOKEN }}
+         config-file: release-please-config.json
+
      - run: |
          cd packages/sfp-cli
          npm publish
        env:
          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-       if: ${{ steps.release.outputs.releases_created }}
+       if: ${{ steps.release.outputs.releases_created == 'true'}}
 
  sync-gitea-mirror:
     runs-on: ubuntu-latest
