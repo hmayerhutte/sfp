@@ -40,7 +40,8 @@ jobs:
 
      - run: |
          cd packages/sfp-cli
-         npm publish
+         npx lerna publish from-package --yes --dist-tag ${{ github.ref }}
+       name: Publish packages
        env:
          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
        if: ${{ steps.release.outputs.releases_created == 'true'}}
