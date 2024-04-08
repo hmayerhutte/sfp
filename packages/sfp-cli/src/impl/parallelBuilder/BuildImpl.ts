@@ -17,10 +17,10 @@ import SFPLogger, {
 	FileLogger,
 	LoggerLevel,
 	VoidLogger,
-} from "@flxblio/sfp-logger";
-import { COLOR_KEY_MESSAGE } from "@flxblio/sfp-logger";
-import { COLOR_HEADER } from "@flxblio/sfp-logger";
-import { COLOR_ERROR } from "@flxblio/sfp-logger";
+} from "@flxbl-io/sfp-logger";
+import { COLOR_KEY_MESSAGE } from "@flxbl-io/sfp-logger";
+import { COLOR_HEADER } from "@flxbl-io/sfp-logger";
+import { COLOR_ERROR } from "@flxbl-io/sfp-logger";
 import SfpPackage, {
 	PackageType,
 } from "../../core/package/SfpPackage";
@@ -48,6 +48,7 @@ export interface BuildProps {
 	configFilePath?: string;
 	projectDirectory?: string;
 	devhubAlias?: string;
+	baselineOrgAlias?:string;
 	repourl?: string;
 	waitTime: number;
 	isQuickBuild: boolean;
@@ -60,6 +61,8 @@ export interface BuildProps {
 	baseBranch?: string;
 	diffOptions?: PackageDiffOptions;
 	includeOnlyPackages?: string[];
+	impactedPackagesAsPerBranch?: Map<string, string[]>;
+	ref?: string;
 }
 export default class BuildImpl {
 	private limiter: Bottleneck;
@@ -79,12 +82,14 @@ export default class BuildImpl {
 
 	private repository_url: string;
 	private commit_id: string;
+	private base_branch_commit_id: string;
 
 	private logger = new ConsoleLogger();
 	private recursiveAll = (a) =>
 		Promise.all(a).then((r) =>
 			r.length == a.length ? r : this.recursiveAll(a),
 		);
+	
 
 	public constructor(private props: BuildProps) {
 		this.limiter = new Bottleneck({
@@ -109,7 +114,9 @@ export default class BuildImpl {
 
 		let git = await Git.initiateRepo(new ConsoleLogger());
 		this.repository_url = await git.getRemoteOriginUrl(this.props.repourl);
-		this.commit_id = await git.getHeadCommit();
+		this.commit_id = this.props.impactedPackagesAsPerBranch? this.props.ref:await git.getHeadCommit();
+		if(this.props.baseBranch)
+		 this.base_branch_commit_id = await git.getBaseBranchCommit(this.props.baseBranch);
 
 		this.packagesToBeBuilt = this.getPackagesToBeBuilt(
 			this.props.projectDirectory,
@@ -262,7 +269,7 @@ export default class BuildImpl {
 	private createDiffPackageScheduledDisplayedAsATable(
 		packagesToBeBuilt: Map<string, any>,
 	) {
-		let tableHead = ["Package", "Reason to be built", "Last Known Tag"];
+		let tableHead = ["Package", "Reason to be built", "Last Known Tag/Commit Id"];
 		if (
 			this.isMultiConfigFilesEnabled &&
 			this.props.currentStage == Stage.BUILD
@@ -420,13 +427,13 @@ export default class BuildImpl {
 		function printIncludeOnlyPackages() {
 			SFPLogger.log(
 				COLOR_KEY_MESSAGE(
-					`Build will include the below packages as per inclusive filter`,
+					`Build will include the below packages release configs (domain(s))(domain)`,
 				),
-				LoggerLevel.TRACE,
+				LoggerLevel.INFO,
 			);
 			SFPLogger.log(
 				COLOR_KEY_VALUE(`${includeOnlyPackages.toString()}`),
-				LoggerLevel.TRACE,
+				LoggerLevel.INFO,
 			);
 		}
 	}
@@ -753,6 +760,9 @@ export default class BuildImpl {
 
 
 
+		let isPackageImpacted = this.props.impactedPackagesAsPerBranch
+		? this.props.impactedPackagesAsPerBranch.get(sfdx_package)
+		: true;
 
 		return SfpPackageBuilder.buildPackageFromProjectDirectory(
 			new FileLogger(`.sfpowerscripts/logs/${sfdx_package}`),
@@ -761,7 +771,7 @@ export default class BuildImpl {
 			{
 				overridePackageTypeWith: this.props.overridePackageTypes ? this.props.overridePackageTypes[sfdx_package] : undefined,
 				branch: this.props.branch,
-				sourceVersion: this.commit_id,
+				sourceVersion: isPackageImpacted?this.commit_id:this.base_branch_commit_id,
 				repositoryUrl: this.repository_url,
 				configFilePath: configFilePath,
 				pathToReplacementForceIgnore: this.getPathToForceIgnoreForCurrentStage(
@@ -773,6 +783,7 @@ export default class BuildImpl {
 			},
 			{
 				devHub: this.props.devhubAlias,
+				baselineOrg: this.props.baselineOrgAlias,
 				installationkeybypass: true,
 				installationkey: undefined,
 				waitTime: this.props.waitTime.toString(),

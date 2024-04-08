@@ -178,6 +178,9 @@
                     "skipDeployOnOrgs": {
                         "$ref": "#/definitions/packageDirectory.skipDeployOnOrgs"
                     },
+                    "skipInstallOnOrgs": {
+                        "$ref": "#/definitions/packageDirectory.skipInstallOnOrgs"
+                    },
                     "skipTesting": {
                         "$ref": "#/definitions/packageDirectory.skipTesting"
                     },
@@ -186,6 +189,9 @@
                     },
                     "enableFHT": {
                         "$ref": "#/definitions/packageDirectory.enableFHT"
+                    },
+                    "enableFlowActivation": {
+                        "$ref": "#/definitions/packageDirectory.enableFlowActivation"
                     },
                     "enablePicklist": {
                         "$ref": "#/definitions/packageDirectory.enablePicklist"
@@ -527,6 +533,14 @@
                 "type": "string"
             }
         },
+        "packageDirectory.skipInstallOnOrgs": {
+            "type": "array",
+            "title": "Skip installation of an artifact",
+            "description": "Skip installation of an artifact on a particular org or org(s). Take an array of aliases as the input",
+            "items": {
+                "type": "string"
+            }
+        },
         "packageDirectory.skipTesting": {
             "type": "boolean",
             "title": "Skip Unit testing",
@@ -542,6 +556,12 @@
             "default": true,
             "title": "Enable Field History Tracking support?",
             "description": "Enable automated update of field history tracking in the target org upon deployment"
+        },
+        "packageDirectory.enableFlowActivation": {
+            "type": "boolean",
+            "default": true,
+            "title": "Enable Automated Flow Management?",
+            "description": "Enable automated activation,deactivation of flows in the target org, Enabled by default for source/diff packages"
         },
         "packageDirectory.enableFT": {
             "type": "boolean",

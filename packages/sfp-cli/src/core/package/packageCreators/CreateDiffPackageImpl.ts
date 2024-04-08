@@ -1,4 +1,4 @@
-import SFPLogger, { LoggerLevel, Logger } from '@flxblio/sfp-logger';
+import SFPLogger, { LoggerLevel, Logger } from '@flxbl-io/sfp-logger';
 import { ApexSortedByType } from '../../apex/parser/ApexTypeFetcher';
 import SFPStatsSender from '../../stats/SFPStatsSender';
 import PackageEmptyChecker from '../validators/PackageEmptyChecker';
@@ -41,13 +41,15 @@ export default class CreateDiffPackageImp extends CreateSourcePackageImpl {
     async preCreatePackage(sfpPackage: SfpPackage) {
         const devhubOrg = await SFPOrg.create({ aliasOrUsername: this.packageCreationParams.devHub });
 
-        //Fetch Baseline commit from DevHub
-        let commitsOfPackagesInstalledInDevHub = await this.getCommitsOfPackagesInstalledInDevHub(devhubOrg);
+        //Fetch Baseline commit from DevHub or the provided org for validation
+        let commitsOfPackagesInstalled = {};
+         commitsOfPackagesInstalled = await this.getCommitsOfPackagesInstalledInOrg(devhubOrg);
+        
 
         if (this.packageCreationParams.revisionFrom) {
             this.sfpPackage.commitSHAFrom = this.packageCreationParams.revisionFrom;
-        } else if (commitsOfPackagesInstalledInDevHub[this.sfpPackage.packageName]) {
-            this.sfpPackage.commitSHAFrom = commitsOfPackagesInstalledInDevHub[this.sfpPackage.packageName];
+        } else if (commitsOfPackagesInstalled[this.sfpPackage.packageName]) {
+            this.sfpPackage.commitSHAFrom = commitsOfPackagesInstalled[this.sfpPackage.packageName];
         } else {
             this.sfpPackage.commitSHAFrom = this.sfpPackage.sourceVersion;
         }
@@ -59,7 +61,7 @@ export default class CreateDiffPackageImp extends CreateSourcePackageImpl {
         }
     }
 
-    private async getCommitsOfPackagesInstalledInDevHub(diffTargetSfpOrg: SFPOrg) {
+    private async getCommitsOfPackagesInstalledInOrg(diffTargetSfpOrg: SFPOrg) {
         let installedArtifacts = await diffTargetSfpOrg.getInstalledArtifacts();
         let packagesInstalledInOrgMappedToCommits = await this.mapInstalledArtifactstoPkgAndCommits(installedArtifacts);
         return packagesInstalledInOrgMappedToCommits;

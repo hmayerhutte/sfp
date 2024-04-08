@@ -15,7 +15,7 @@ LABEL org.opencontainers.image.documentation "https://docs.flxbl.io/sfp"
 LABEL org.opencontainers.image.revision $GIT_COMMIT
 LABEL org.opencontainers.image.vendor "Flxbl"
 LABEL org.opencontainers.image.source "https://github.com/flxbl-io/sfp"
-LABEL org.opencontainers.image.title "Flxbl sfp docker image - February 24"
+LABEL org.opencontainers.image.title "Flxbl sfp docker image - March 24"
 
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -72,7 +72,7 @@ RUN npm install --global yarn --omit-dev \
 # Install SF cli and sfpowerscripts
 RUN npm install --global --omit=dev \
     @salesforce/cli@${SF_CLI_VERSION} \
-    @flxblio/sfp@${SFPOWERSCRIPTS_VERSION} \
+    @flxbl-io/sfp@${SFPOWERSCRIPTS_VERSION} \
     && npm cache clean --force
 
 

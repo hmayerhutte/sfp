@@ -1,6 +1,6 @@
 import TransitiveDependencyResolver from '../../core/package/dependencies/TransitiveDependencyResolver';
-import { COLOR_HEADER, COLOR_KEY_MESSAGE, COLOR_SUCCESS, COLOR_ERROR } from '@flxblio/sfp-logger';
-import SFPLogger, { LoggerLevel, Logger } from '@flxblio/sfp-logger';
+import { COLOR_HEADER, COLOR_KEY_MESSAGE, COLOR_SUCCESS, COLOR_ERROR } from '@flxbl-io/sfp-logger';
+import SFPLogger, { LoggerLevel, Logger } from '@flxbl-io/sfp-logger';
 import _ from 'lodash';
 import { Connection } from '@salesforce/core';
 const Table = require('cli-table');
@@ -53,6 +53,7 @@ export default class ShrinkImpl {
                         for (let i = 0; i < updatedDependencies.length; i++) {
                             if (updatedDependencies[i].package == temp.package) {
                                 updatedDependencies.splice(i, 1);
+                                break;
                             }
                         }
                     }

@@ -1,4 +1,4 @@
-import SFPLogger, { Logger, LoggerLevel } from '@flxblio/sfp-logger';
+import SFPLogger, { Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 import simplegit, { SimpleGit } from 'simple-git';
 import fs = require('fs-extra');
 import GitIdentity from './GitIdentity';
@@ -27,6 +27,10 @@ export default class Git {
 
     async getHeadCommit(): Promise<string> {
         return this._git.revparse(['HEAD']);
+    }
+
+    async getBaseBranchCommit(baseBranch:string): Promise<string> {
+        return this._git.revparse([baseBranch]);
     }
 
     async show(options: string[]): Promise<string> {

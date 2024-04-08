@@ -4,13 +4,13 @@ import * as yaml from 'js-yaml';
 import { ComponentSet, registry } from '@salesforce/source-deploy-retrieve';
 import SfpPackage, { PackageType } from '../SfpPackage';
 import { PackageAnalyzer } from './PackageAnalyzer';
-import SFPLogger, { Logger, LoggerLevel } from '@flxblio/sfp-logger';
+import SFPLogger, { Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 
 export default class FTAnalyser implements PackageAnalyzer {
 
     public getName(): string {
         return "Feed Tracking Analyzer";
-    };
+    }
 
     public async analyze(sfpPackage: SfpPackage, componentSet:ComponentSet, logger:Logger): Promise<SfpPackage> {
         try {

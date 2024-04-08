@@ -1,5 +1,5 @@
 import { Connection } from '@salesforce/core';
-import SFPLogger, { Logger, LoggerLevel } from '@flxblio/sfp-logger';
+import SFPLogger, { Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 import Package2VersionFetcher from '../version/Package2VersionFetcher';
 
 export default class PackageVersionCoverage {
@@ -9,8 +9,8 @@ export default class PackageVersionCoverage {
         const package2VersionFetcher = new Package2VersionFetcher(this.connection);
         const package2Version = await package2VersionFetcher.fetchBySubscriberPackageVersionId(versionId);
         SFPLogger.log(`Fetched Record ${JSON.stringify(package2Version)}`, LoggerLevel.TRACE, this.logger);
+        let packageCoverage = <PackageCoverage>{};
         if (package2Version) {
-            var packageCoverage = <PackageCoverage>{};
             packageCoverage.HasPassedCodeCoverageCheck = package2Version.HasPassedCodeCoverageCheck;
             packageCoverage.coverage = package2Version.CodeCoverage ? package2Version.CodeCoverage.apexCodeCoveragePercentage : 0;
             packageCoverage.packageId = package2Version.Package2Id;

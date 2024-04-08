@@ -4,7 +4,7 @@ const tmp = require('tmp');
 import * as fs from 'fs-extra';
 const path = require('path');
 import { ComponentSet, MetadataConverter } from '@salesforce/source-deploy-retrieve';
-import { Logger } from '@flxblio/sfp-logger';
+import { Logger } from '@flxbl-io/sfp-logger';
 
 export default class PackageMergeManager {
     public constructor(private sfpPackages: SfpPackage[], private logger?: Logger) {}
@@ -139,11 +139,11 @@ export default class PackageMergeManager {
     }
 
     private makefolderid(length): string {
-        var result = '';
-        var characters =
+        let result = '';
+        let characters =
             'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        var charactersLength = characters.length;
-        for (var i = 0; i < length; i++) {
+        let charactersLength = characters.length;
+        for (let i = 0; i < length; i++) {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
         return result;
