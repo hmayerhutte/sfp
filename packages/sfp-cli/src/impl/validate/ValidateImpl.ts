@@ -295,7 +295,7 @@ export default class ValidateImpl implements PostDeployHook, PreDeployHook {
             skipIfPackageInstalled: false,
             logsGroupSymbol: this.props.logsGroupSymbol,
             currentStage: Stage.VALIDATE,
-            disableArtifactCommit: false, //always set to false, let post deploy determine
+            disableArtifactCommit: true, //always set to true, let post deploy determine
             impactedPackagesAsPerBranch: this.impactedPackagesAsPerBranch,
             selectiveComponentDeployment:
                 this.props.validationMode == ValidationMode.FAST_FEEDBACK ||
