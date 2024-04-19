@@ -27,10 +27,9 @@ Initially, we considered adding a new flag and specific mode for this feature. H
 This also means the following changes to behavior of how validate works
 
 - Differentiate between packages that need to be synchronized vs validated
-- Allow validate to commit the changed packages in to the target org, reverting earlier change to disableArtifactUpdate,so
-  users can control the behavior required, Ideally disableArtifactUpdate will be set to false, so retries to the same
-  review org within a range of commits will save further time
-- Only commit the packages to an org, if the test pass for validate packages, however commit packages to org immediately for packages that are to be synchronized, when the deployment is succesful
+- Allow validate to commit the changed packages in to the target org, reverting earlier change to disableArtifactUpdate
+- Always validate impacted packages to ensure retries between runs are consistent and reduce confusions
+- Only commit the packages to an org, if the test pass for validate packages, however commit packages to org immediately for packages that are to be synchronized, when the deployment is successful
 - Package Diff comparison logic need to be updated to ensure, that if the commit id in the org is incorrect, assume the package is never built
 
 

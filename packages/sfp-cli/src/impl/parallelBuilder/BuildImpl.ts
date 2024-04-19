@@ -140,6 +140,7 @@ export default class BuildImpl {
 				await this.filterPackagesToBeBuiltByChanged(
 					this.props.projectDirectory,
 					this.packagesToBeBuilt,
+					this.props.impactedPackagesAsPerBranch
 				);
 			table = this.createDiffPackageScheduledDisplayedAsATable(
 				packagesToBeBuiltWithReasons,
@@ -333,7 +334,8 @@ export default class BuildImpl {
 
 	private async filterPackagesToBeBuiltByChanged(
 		projectDirectory: string,
-		allPackagesInRepo: any,
+		packagesInRepoFilteredByConfig: any,
+		impactedPackagesAsPerBranch: Map<string, string[]>
 	) {
 		let packagesToBeBuilt = new Map<string, any>();
 		let buildCollections = new BuildCollections(projectDirectory);
@@ -344,7 +346,7 @@ export default class BuildImpl {
 					this.props.currentStage,
 				);
 
-		for await (const pkg of allPackagesInRepo) {
+		for await (const pkg of packagesInRepoFilteredByConfig) {
 			let diffImpl: PackageDiffImpl = new PackageDiffImpl(
 				new ConsoleLogger(),
 				pkg,
@@ -353,11 +355,17 @@ export default class BuildImpl {
 			);
 			let packageDiffCheck = await diffImpl.exec();
 
-			if (packageDiffCheck.isToBeBuilt) {
+
+			let isPackageImpacted = impactedPackagesAsPerBranch
+				? impactedPackagesAsPerBranch.get(pkg)
+				: false;
+
+			if (isPackageImpacted || packageDiffCheck.isToBeBuilt) {
 				packagesToBeBuilt.set(pkg, {
-					reason: packageDiffCheck.reason,
+					reason: isPackageImpacted?'Found change(s) in package':packageDiffCheck.reason,
 					tag: packageDiffCheck.tag,
 				});
+
 				//Add Bundles
 				if (buildCollections.isPackageInACollection(pkg)) {
 					buildCollections
@@ -397,8 +405,11 @@ export default class BuildImpl {
 
 		//Filter Packages
 		if (includeOnlyPackages) {
-			//Display include only packages
+			//Display include only packages only on stages other than validate
+			//Validate would have already printed it
+			if(this.props.currentStage != Stage.VALIDATE){
 			printIncludeOnlyPackages();
+			}
 			packageDescriptors = packageDescriptors.filter((pkg) => {
 				if (
 					includeOnlyPackages.find((includedPkg) => {
