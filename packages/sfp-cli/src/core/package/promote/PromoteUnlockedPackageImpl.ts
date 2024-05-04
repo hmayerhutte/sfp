@@ -27,7 +27,7 @@ export default class PromoteUnlockedPackageImpl {
             result.id = packageVersionData.SubscriberPackageVersionId;
         } catch (e) {
             if (e.message.includes('previously released')) {
-                SFPLogger.log(`Package ${this.package_version_id} is already promoted, Ignoring`);
+                throw new Error(`The package version ${packageVersionData.MajorVersion}.${packageVersionData.MinorVersion}.${packageVersionData.PatchVersion} was already promoted in a previous build. For a given this version number, you can promote only one version.`);
             } else throw e;
         }
     }
