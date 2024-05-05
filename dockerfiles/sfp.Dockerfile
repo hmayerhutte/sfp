@@ -2,11 +2,12 @@ FROM ubuntu:22.04
 
 
 ARG SFPOWERSCRIPTS_VERSION=alpha
-ARG SF_CLI_VERSION=2.25.7 
+ARG SF_CLI_VERSION=2.25.7
 ARG BROWSERFORCE_VERSION=4.0.0
 ARG SFDMU_VERSION=4.32.2
 ARG GIT_COMMIT
 ARG NODE_MAJOR=18
+ARG SF_COMMUNITY_PLUGIN=3.1.0
 
 LABEL org.opencontainers.image.description "sfp is a build system for modular development in Salesforce."
 LABEL org.opencontainers.image.licenses "MIT"
@@ -63,7 +64,7 @@ RUN mkdir -p /etc/apt/keyrings \
     && apt-get -y install --no-install-recommends nodejs \
     && apt-get autoremove --assume-yes \
     && apt-get clean --assume-yes \
-    && rm -rf /var/lib/apt/list/*    
+    && rm -rf /var/lib/apt/list/*
 
 # install yarn
 RUN npm install --global yarn --omit-dev \
@@ -107,7 +108,8 @@ RUN echo 'y' | sf plugins:install sfdx-browserforce-plugin@${BROWSERFORCE_VERSIO
     && echo 'y' | sf plugins:install sfdmu@${SFDMU_VERSION} \
     && echo 'y' | sf plugins:install @salesforce/plugin-signups@1.5.0 \
     && echo 'y' | sf plugins:install @salesforce/sfdx-scanner@3.16.0 \
-    && yarn cache clean --all 
+    && echo 'y' | sf plugins:install @salesforce/plugin-community@${SF_COMMUNITY_PLUGIN} \
+    && yarn cache clean --all
 
 # Set some sane behaviour in container
 ENV SF_CONTAINER_MODE=true
