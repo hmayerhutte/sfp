@@ -1,4 +1,3 @@
-import SFPLogger from '@flxbl-io/sfp-logger';
 import { SfProject } from '@salesforce/core';
 import { PackageSaveResult, PackageVersion } from '@salesforce/packaging';
 import SFPOrg from '../../org/SFPOrg';
