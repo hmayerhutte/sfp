@@ -1,5 +1,5 @@
 import ArtifactFetcher, { Artifact } from '../../core/artifacts/ArtifactFetcher';
-import SFPLogger, { COLOR_ERROR, COLOR_SUCCESS, FileLogger, Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
+import SFPLogger, { COLOR_ERROR, COLOR_SUCCESS, Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 import { Stage } from '../Stage';
 import ProjectConfig from '../../core/project/ProjectConfig';
 import semver = require('semver');
@@ -25,7 +25,6 @@ import convertBuildNumDotDelimToHyphen from '../../core/utils/VersionNumberConve
 import ReleaseConfigLoader from '../release/ReleaseConfigLoader';
 import { Align, getMarkdownTable } from 'markdown-table-ts';
 import FileOutputHandler from '../../outputs/FileOutputHandler';
-import { ValidateProps } from '../validate/ValidateImpl';
 
 const Table = require('cli-table');
 const retry = require('async-retry');
@@ -81,7 +80,7 @@ export default class DeployImpl {
     public async exec(): Promise<DeploymentResult> {
         let deployed: PackageInfo[] = [];
         let failed: PackageInfo[] = [];
-        let queue: SfpPackage[];
+        let queue: SfpPackage[] = [];
         let packagesToPackageInfo: { [p: string]: PackageInfo };
         try {
             //Create Org
@@ -108,6 +107,18 @@ export default class DeployImpl {
                     this.props.logger
                 );
 
+            if (sfpPackages.length <= 0 && (this.props.releaseConfigPath || this.props.filterByProvidedArtifacts)) {
+                SFPLogger.log(`Skipping deployment, no artifacts found based on filters defined in ${this.props.releaseConfigPath ? ' release config' : '--artifacts parameter'}`,LoggerLevel.INFO, this.props.logger);
+                return {
+                    scheduled: 0,
+                    deployed: deployed,
+                    failed: failed,
+                    queue: queue,
+                    packagesToPackageInfo: null,
+                    error: null,
+                };
+            }
+
             //Grab the latest projectConfig from Packages
             let sfpPackageInquirer: SfpPackageInquirer = new SfpPackageInquirer(sfpPackages, this.props.logger);
             let sfdxProjectConfig = sfpPackageInquirer.getLatestProjectConfig();
@@ -123,6 +134,7 @@ export default class DeployImpl {
             SFPLogger.log('Artifacts' + JSON.stringify(packagesToPackageInfo), LoggerLevel.TRACE, this.props.logger);
 
             queue = this.getPackagesToDeploy(sfdxProjectConfig, packagesToPackageInfo);
+
 
             SFPLogger.log('queue:' + JSON.stringify(queue), LoggerLevel.TRACE, this.props.logger);
 
@@ -874,8 +886,7 @@ export default class DeployImpl {
             else return true;
         });
 
-        if (packagesToDeploy.length === 0) throw new Error(`No artifacts from project config to be deployed`);
-        else return packagesToDeploy;
+        return packagesToDeploy;
     }
 }
 
