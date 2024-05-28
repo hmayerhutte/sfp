@@ -58,6 +58,7 @@ export interface DeployProps {
     releaseConfigPath?: string;
     filterByProvidedArtifacts?: string[];
     impactedPackagesAsPerBranch?: Map<string, string[]>;
+    failifalreadypromoted?: boolean;
 }
 
 export default class DeployImpl {
@@ -409,7 +410,8 @@ export default class DeployImpl {
                     let promoteUnlockedPackageImpl: PromoteUnlockedPackageImpl = new PromoteUnlockedPackageImpl(
                         sourceDirectory,
                         sfpPackage.package_version_id,
-                        this.props.devhubUserName
+                        this.props.devhubUserName,
+                        this.props.failifalreadypromoted
                     );
                     await promoteUnlockedPackageImpl.promote();
                 }
