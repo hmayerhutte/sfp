@@ -1,6 +1,6 @@
 import SFPLogger, { COLOR_KEY_MESSAGE, Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 import { Connection } from '@salesforce/core';
-import { IpRange, SecuritySettings } from 'jsforce/lib/api/metadata';
+import {IpRange, SecuritySettings} from "@jsforce/jsforce-node/lib/api/metadata/schema";
 
 export default class DeploymentSettingsService {
     constructor(private conn: Connection) {}

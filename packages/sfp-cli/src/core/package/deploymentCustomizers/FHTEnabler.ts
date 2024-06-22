@@ -5,7 +5,6 @@ import QueryHelper from '../../queryHelper/QueryHelper';
 import SfpPackage from '../SfpPackage';
 import { Connection } from '@salesforce/core';
 
-import { Schema } from 'jsforce';
 import CustomFieldFetcher from '../../metadata/CustomFieldFetcher';
 import SFPOrg from '../../org/SFPOrg';
 import path from 'path';
@@ -13,6 +12,7 @@ import OrgDetailsFetcher from '../../org/OrgDetailsFetcher';
 import { DeploymentOptions } from '../../deployers/DeploySourceToOrgImpl';
 import { TestLevel } from '../../apextest/TestOptions';
 import { MetdataDeploymentCustomizer } from './MetadataDeploymentCustomizer';
+
 
 const QUERY_BODY =
     'SELECT QualifiedApiName, EntityDefinition.QualifiedApiName  FROM FieldDefinition WHERE IsFieldHistoryTracked = true AND EntityDefinitionId IN ';
@@ -32,7 +32,7 @@ export default class FHTEnabler extends MetdataDeploymentCustomizer {
         }
     }
 
-   
+
 
     public async getDeploymentOptions( target_org: string, waitTime: string, apiVersion: string):Promise<DeploymentOptions>
     {
@@ -88,19 +88,19 @@ export default class FHTEnabler extends MetdataDeploymentCustomizer {
             let sfpOrg = await SFPOrg.create({ connection: conn });
             let fetchedCustomFields = await customFieldFetcher.getCustomFields(sfpOrg, fieldList);
 
-            
+
 
             //Modify the component set
             //Parsing is risky due to various encoding, so do an inplace replacement
             for (const sourceComponent of fetchedCustomFields.components.getSourceComponents()) {
                 let metadataOfComponent = fs.readFileSync(sourceComponent.xml).toString();
-               
+
                 metadataOfComponent = metadataOfComponent.replace(
                     '<trackHistory>false</trackHistory>',
                     '<trackHistory>true</trackHistory>'
                 );
 
-                
+
 
                 fs.writeFileSync(path.join(sourceComponent.xml), metadataOfComponent);
             }
