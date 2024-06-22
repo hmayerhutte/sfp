@@ -1,12 +1,13 @@
-import { Connection } from 'jsforce';
-import { RetrieveResult } from 'jsforce/lib/api/metadata';
 import { delay } from './delay';
 import SFPLogger, {LoggerLevel } from '@flxbl-io/sfp-logger';
+import {Connection} from "@salesforce/core";
+import {RetrieveResult} from "@salesforce/source-deploy-retrieve";
 
 
 export async function checkRetrievalStatus(conn: Connection, retrievedId: string, isToBeLoggedToConsole = true): Promise<RetrieveResult> {
     let metadata_result;
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         try {
             metadata_result = await conn.metadata.checkRetrieveStatus(retrievedId);

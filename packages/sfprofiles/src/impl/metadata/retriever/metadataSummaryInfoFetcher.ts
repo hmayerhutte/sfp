@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import getDefaults from '@utils/getDefaults';
 import SFPLogger, {LoggerLevel } from '@flxbl-io/sfp-logger';
-import { FileProperties, DescribeMetadataResult } from 'jsforce/lib/api/metadata';
-import { Connection } from 'jsforce';
 import { chunkArray } from '@utils/chunkArray';
 // import { ProgressBar } from '../../../ui/progressBar';
 import GetDefaults from '@utils/getDefaults';
 import { isArray } from 'util';
+import {Connection} from "@salesforce/core";
+import {DescribeMetadataResult} from "@jsforce/jsforce-node/lib/api/metadata/schema";
+import {FileProperties} from "@impl/metadata/schema";
 const retry = require('async-retry');
 
 export default class MetadataSummaryInfoFetcher {

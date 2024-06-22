@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Connection } from 'jsforce';
 import SFPLogger, {LoggerLevel } from '@flxbl-io/sfp-logger';
 import retry from 'async-retry';
+import {Connection} from "@salesforce/core";
 
 export default class QueryExecutor {
     constructor(private conn: Connection) {}

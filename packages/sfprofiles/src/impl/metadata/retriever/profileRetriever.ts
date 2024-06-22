@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-array-constructor */
 import Profile, { ProfileObjectPermissions, ProfileUserPermission } from '../schema';
-import { Connection } from 'jsforce';
 import { MetadataInfo } from '../metadataInfo';
 import * as _ from 'lodash';
 import MetadataRetriever from './metadataRetriever';
 import QueryExecutor from '@utils/queryExecutor';
 import MetadataOperation from '@utils/metadataOperation';
+import {Connection} from "@salesforce/core";
 
 const unsuportedObjects = ['PersonAccount'];
 /**

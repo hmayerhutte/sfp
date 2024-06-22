@@ -1,10 +1,10 @@
 import { Sfpowerkit } from '@utils/sfpowerkit';
 import * as _ from 'lodash';
-import { Connection } from 'jsforce';
 import QueryExecutor from '@utils/queryExecutor';
 import MetadataOperation from '@utils/metadataOperation';
 import { registry } from '@salesforce/source-deploy-retrieve';
 import SFPLogger, {LoggerLevel } from '@flxbl-io/sfp-logger';
+import {Connection} from "@salesforce/core";
 
 export default class MetadataRetriever {
     protected _componentType;

@@ -1,11 +1,11 @@
-import { Connection } from 'jsforce';
 import _ from 'lodash';
 import * as xml2js from 'xml2js';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import FileUtils from 'utils/fileutils';
-import { FileProperties } from 'jsforce/lib/api/metadata';
 import SFPLogger, {LoggerLevel } from '@flxbl-io/sfp-logger';
+import {Connection} from "@salesforce/core";
+import {FileProperties} from "@impl/metadata/schema";
 
 
 if (Symbol['asyncIterator'] === undefined) {
