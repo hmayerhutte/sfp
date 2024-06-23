@@ -4,8 +4,8 @@ import { delay } from '../utils/Delay';
 const fs = require('fs-extra');
 import AdmZip = require('adm-zip');
 import { Connection } from '@salesforce/core';
-import { RetrieveResult } from 'jsforce/lib/api/metadata';
 import { makeRandomId } from '../utils/RandomId';
+import { RetrieveResult } from '@jsforce/jsforce-node/lib/api/metadata';
 
 export default class MetadataFetcher {
     constructor(protected logger: Logger) {}

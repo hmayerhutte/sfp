@@ -13,7 +13,7 @@ import { Flags } from '@oclif/core';
 import SfpCommand from '../../../SfpCommand';
 import { loglevel } from '../../../flags/sfdxflags';
 import { parseJson } from '@salesforce/kit';
-
+import * as fs from 'fs-extra';
 
 Messages.importMessagesDirectory(__dirname);
 

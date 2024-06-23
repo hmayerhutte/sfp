@@ -1,4 +1,4 @@
-import { Query, SaveResult } from 'jsforce';
+import { Query, SaveResult } from '@jsforce/jsforce-node';
 import SFPOrg from '../org/SFPOrg';
 import SFPLogger, { Logger, LoggerLevel } from '@flxbl-io/sfp-logger';
 import QueryHelper from '../queryHelper/QueryHelper';

@@ -6,9 +6,9 @@ import QueryHelper from '../../queryHelper/QueryHelper';
 import { DeploymentContext, DeploymentCustomizer } from './DeploymentCustomizer';
 import { DeploySourceResult } from '../../deployers/DeploymentExecutor';
 import SFPOrg from '../../org/SFPOrg';
-import { Schema } from 'jsforce';
 import { DeploymentOptions } from '../../deployers/DeploySourceToOrgImpl';
 import Bottleneck from "bottleneck";
+import { Schema } from '@jsforce/jsforce-node';
 
 const QUERY_BODY = 'SELECT Id FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName = ';
 

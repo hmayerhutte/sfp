@@ -4,7 +4,6 @@ import * as fs from 'fs-extra';
 import QueryHelper from '../../queryHelper/QueryHelper';
 import SfpPackage from '../SfpPackage';
 import { Connection } from '@salesforce/core';
-import { Schema } from 'jsforce';
 import CustomFieldFetcher from '../../metadata/CustomFieldFetcher';
 import SFPOrg from '../../org/SFPOrg';
 import path from 'path';
@@ -12,6 +11,7 @@ import OrgDetailsFetcher from '../../org/OrgDetailsFetcher';
 import { DeploymentOptions } from '../../deployers/DeploySourceToOrgImpl';
 import { TestLevel } from '../../apextest/TestOptions';
 import { MetdataDeploymentCustomizer } from './MetadataDeploymentCustomizer';
+import { Schema } from '@jsforce/jsforce-node';
 
 const QUERY_BODY =
     'SELECT QualifiedApiName, EntityDefinition.QualifiedApiName  FROM FieldDefinition WHERE IsFeedEnabled = true AND EntityDefinitionId IN ';

@@ -5,12 +5,11 @@ import SFPLogger, { COLOR_KEY_MESSAGE, Logger, LoggerLevel } from '@flxbl-io/sfp
 import { activate, deactivate, deleteFlows, Flow, FlowDefinition, getFlowDefinition } from '../../flows/FlowOperations';
 import SfpPackage, { PackageType } from '../SfpPackage';
 import { Connection } from '@salesforce/core';
-import OrgDetailsFetcher from '../../org/OrgDetailsFetcher';
-import { Schema } from 'jsforce';
 import { DeploymentOptions } from '../../deployers/DeploySourceToOrgImpl';
 import { DeploymentContext, DeploymentCustomizer } from './DeploymentCustomizer';
 import { DeploySourceResult } from '../../deployers/DeploymentExecutor';
 import { ZERO_BORDER_TABLE } from '../../display/TableConstants';
+import { Schema } from '@jsforce/jsforce-node';
 const Table = require('cli-table');
 
 export default class FlowActivator implements DeploymentCustomizer {

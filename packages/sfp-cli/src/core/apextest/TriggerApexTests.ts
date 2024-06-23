@@ -34,7 +34,7 @@ const retry = require('async-retry');
 import dedent from 'dedent';
 
 export default class TriggerApexTests {
-    private conn: Connection;
+    private conn: any;
     protected cancellationTokenSource = new CancellationTokenSource();
 
     public constructor(

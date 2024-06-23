@@ -146,7 +146,6 @@ export default class ScratchOrgOperator {
 
     private async setAliasForUsername(username: string, aliasToSet: string): Promise<void> {
         const stateAggregator = await StateAggregator.getInstance();
-        stateAggregator.aliases.set(aliasToSet, { username: username });
-        await stateAggregator.aliases.write();
+        stateAggregator.aliases.setAndSave(aliasToSet, { username: username });
     }
 }
