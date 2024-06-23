@@ -3,6 +3,7 @@
     "compilerOptions": {
         "composite": true,
         "outDir": "./lib",
+        "moduleResolution": "Node16",
         "rootDir": ".",
         "inlineSourceMap": true,
         "declaration": true,

@@ -1,6 +1,6 @@
 import { expect } from '@jest/globals';
 import PermissionSetFetcher from '../../../src/core/permsets/PermissionSetFetcher';
-import { MockTestOrgData, TestContext } from '@salesforce/core/lib/testSetup';
+import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
 import { AnyJson } from '@salesforce/ts-types';
 import { AuthInfo, Connection, OrgConfigProperties } from '@salesforce/core';
 const $$ = new TestContext();

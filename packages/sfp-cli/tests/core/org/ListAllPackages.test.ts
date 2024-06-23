@@ -1,5 +1,5 @@
 import { expect } from '@jest/globals';
-import { MockTestOrgData, TestContext } from '@salesforce/core/lib/testSetup';
+import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
 import { AnyJson } from '@salesforce/ts-types';
 import SFPOrg from '../../../src/core/org/SFPOrg';
 import { OrgConfigProperties } from '@salesforce/core';

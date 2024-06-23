@@ -6,7 +6,7 @@ import ApexTriggerFetcher from '../../../../src/core/apex/ApexTriggerFetcher';
 import ApexCodeCoverageAggregateFetcher from '../../../../src/core/apex/coverage/ApexCodeCoverageAggregateFetcher';
 
 import { AuthInfo, ConfigAggregator, Connection, Org, OrgConfigProperties } from '@salesforce/core';
-import { MockTestOrgData, TestContext } from '@salesforce/core/lib/testSetup';
+import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
 import SfpPackage, { PackageType } from '../../../../src/core/package/SfpPackage';
 import SfpPackageBuilder from '../../../../src/core/package/SfpPackageBuilder';
 const $$ =  new TestContext();
