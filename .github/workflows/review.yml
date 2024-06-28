@@ -7,7 +7,6 @@ on:
     pull_request:
         types: [opened, synchronize, reopened]
         branches:
-            - develop
             - main
 
 # Jobs to be executed
@@ -21,14 +20,12 @@ jobs:
             with:
               node-version: '18'
               registry-url: 'https://registry.npmjs.org'
-          - uses: pnpm/action-setup@v2
-            with:
-             version: 8
 
           - name: 'Install Dependencies'
-            run: pnpm i              
-          - run: npx lerna run build
-          - run: npx lerna run test -- --colors
+            run: npm i         
+
+          - run: npm run build
+          - run: npm run test -- --colors
 
           - name: Upload coverage reports to Codecov
             uses: codecov/codecov-action@v3
