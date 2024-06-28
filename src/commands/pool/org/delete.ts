@@ -2,14 +2,14 @@ import { AnyJson } from '@salesforce/ts-types';
 import SfpCommand from '../../../SfpCommand';
 import PoolOrgDeleteImpl from '../../../core/scratchorg/pool/PoolOrgDeleteImpl';
 import SFPLogger from '@flxbl-io/sfp-logger';
-import { Messages } from '@salesforce/core';
+import { Messages, StateAggregator } from '@salesforce/core';
 import {
     loglevel,
     orgApiVersionFlagSfdxStyle,
     targetdevhubusername,
     requiredUserNameFlag,
 } from '../../../flags/sfdxflags';
-import { AliasAccessor } from '@salesforce/core/lib/stateAggregator/accessors/aliasAccessor';
+
 
 
 // Initialize Messages with the current plugin directory
@@ -39,7 +39,7 @@ export default class Delete extends SfpCommand {
 
         this.flags.apiversion = this.flags.apiversion || (await hubConn.retrieveMaxApiVersion());
 
-        let aliasAccessor = await AliasAccessor.create();
+        let aliasAccessor = (await StateAggregator.getInstance()).aliases;
         let resolvedAliasOrUserName:string;
         if (aliasAccessor.resolveAlias(this.flags.targetusername)) {
             resolvedAliasOrUserName = aliasAccessor.resolveUsername(this.flags.targetusername);

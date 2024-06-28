@@ -66,14 +66,14 @@ To build sfp execute the following on the terminal:
 ```
 npm i -g lerna #Install Lerna Globally
 cd <sfp directory> # Navigate to the checked out directory
-pnpm i
-lerna run build
+npm i
+npm run build
 ```
 
 To run unit tests
 
 ```
-lerna run test
+npm run test
 ```
 
 To debug and test plugin

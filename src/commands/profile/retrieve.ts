@@ -70,7 +70,9 @@ export default class Retrieve extends SfpCommand {
         SFPLogger.log(COLOR_WARNING(messages.getMessage('retriveDelayWarning')),LoggerLevel.INFO);
         SFPLogger.log(COLOR_KEY_MESSAGE(`Retrieving profiles from ${this.flags.targetorg}`),LoggerLevel.INFO );
       
+        
         this.org = await Org.create({ aliasOrUsername: this.flags.targetorg });
+         //@ts-ignore
         const profileUtils = new ProfileSync(this.org);
 
         let syncProfiles = await profileUtils.sync(folders, argProfileList || [], this.flags.delete);

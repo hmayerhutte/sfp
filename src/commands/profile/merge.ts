@@ -99,6 +99,7 @@ export default class Merge extends SfpCommand {
 
 
         this.org = await Org.create({ aliasOrUsername: this.flags.targetorg });
+        //@ts-ignore
         const profileUtils = new ProfileMerge(this.org);
 
         let mergedProfiles = await profileUtils.merge(argFolder, argProfileList || [], metadatas, this.flags.delete);

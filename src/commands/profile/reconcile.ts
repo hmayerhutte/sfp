@@ -85,6 +85,7 @@ export default class Reconcile extends SfpCommand {
         let result = [];
 
         try {
+            //@ts-ignore
             let profileReconciler = new ProfileReconcile(this.org);
             let reconcileProfiles = await profileReconciler.reconcile(
                 argFolder,

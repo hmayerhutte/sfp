@@ -13,7 +13,7 @@ export default class ReconcileProfileAgainstOrgImpl {
        
         let result=[];
         try {
-            let profileReconciler = new ProfileReconcile(this.sfpOrg);
+            let profileReconciler = new ProfileReconcile(this.sfpOrg as any);
             let reconcileProfiles = await profileReconciler.reconcile(
                 [ this.project_directory],
                 [],

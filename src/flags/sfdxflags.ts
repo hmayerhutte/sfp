@@ -14,7 +14,7 @@
 import { Flags } from '@oclif/core';
 import { Lifecycle, Messages, Org, OrgConfigProperties } from '@salesforce/core';
 import { orgApiVersionFlag } from './orgApiVersion';
-import { AliasAccessor } from '@salesforce/core/lib/stateAggregator/accessors/aliasAccessor';
+import { StateAggregator } from '@salesforce/core/stateAggregator';
 
 
 /**
@@ -60,7 +60,7 @@ const userNameFlag = Flags.custom({
   char: 'u',
   summary: messages.getMessage('flags.targetOrg.summary'),
   parse: async (input: string | undefined) =>  {
-    let aliasAccessor = (await AliasAccessor.create());
+    let aliasAccessor = (await StateAggregator.getInstance()).aliases;
     if(aliasAccessor.resolveAlias(input))
       return aliasAccessor.resolveAlias(input);
     else
@@ -84,7 +84,7 @@ const devhubFlag = Flags.custom({
   char: 'v',
   summary: messages.getMessage('flags.targetDevHubOrg.summary'),
   parse: async (input: string | undefined) =>  {
-    let aliasAccessor = (await AliasAccessor.create());
+    let aliasAccessor = (await StateAggregator.getInstance()).aliases;
     let resolvedAliasOrUserName;
     if(aliasAccessor.resolveAlias(input))
       resolvedAliasOrUserName=aliasAccessor.resolveAlias(input);
@@ -119,18 +119,13 @@ export type ArrayWithOptions = {
 export const arrayFlagSfdxStyle = Flags.custom<string[], ArrayWithOptions>({
   multiple: true,
   delimiter: ',',
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error parse expects to return string[] but we need to return string.
-  // This is a weird consequence of implementing an array flag. The oclif parser splits the input (e.g. "thing1,thing2")
-  // on the delimiter and passes each value individually to the parse function. However, the return type needs to be
-  // string[] so that upstream consumers have the correct flag typings.
   parse: async (input, ctx) => {
     const inputParts = ctx.token.input.split(',').map((i) => i.trim());
     if (inputParts.length > 1) {
       await Lifecycle.getInstance().emitWarning(messages.getMessage('warning.arrayInputFormat'));
     }
 
-    return input;
+    return inputParts; // Return the array of input parts
   },
 });
 

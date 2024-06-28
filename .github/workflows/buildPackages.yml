@@ -1,6 +1,3 @@
-# This pipeline is used as template to build the sfp plugin
-
-
 name: 'Build Packages'
 
 on:
@@ -21,14 +18,14 @@ on:
 
 jobs:
   build:
-    name: 'build packages'
+    name: 'Build Package'
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      
+
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -43,31 +40,23 @@ jobs:
           git config --global user.email "ciuser@flxbl.io"
           git config --global user.name "ciuser"
 
-
       - name: 'Install Dependencies'
-        run: pnpm i
+        run: npm i
 
-
-      - name: 'Build  All  Packages'
-        run: |
-          npx lerna run build
-          npx lerna run manifest
-
-
+      - name: 'Build Package'
+        run: npm run build
 
       - name: 'Run Unit Tests'
         if: ${{ inputs.publish == true }}
-        run: npx lerna run test -- --colors
+        run: npm run test -- --colors
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
-         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-         
-      - name: 'Publish CLI/Core'
+      - name: 'Publish Package'
         if: ${{ inputs.publish == true }}
-        run: 'npx lerna publish from-package --yes --dist-tag ${{ inputs.version }}'
+        run: npm publish --tag ${{ inputs.version }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm-token }}
-
