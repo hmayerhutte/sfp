@@ -1,5 +1,5 @@
 import { jest, expect } from '@jest/globals';
-import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
+import { MockTestOrgData, TestContext } from '../../../../node_modules/@salesforce/core/lib/testSetup';
 import { Connection, AuthInfo, OrgConfigProperties, ConfigAggregator } from '@salesforce/core';
 import PackageDependencyResolver from '../../../../src/core/package/dependencies/PackageDependencyResolver';
 const $$ = new TestContext();

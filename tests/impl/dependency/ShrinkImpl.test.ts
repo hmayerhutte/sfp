@@ -1,5 +1,5 @@
 import { jest, expect } from '@jest/globals';
-import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
+import { MockTestOrgData, TestContext } from '../../../node_modules/@salesforce/core/lib/testSetup';
 import { Connection, AuthInfo, OrgConfigProperties } from '@salesforce/core';
 import ShrinkImpl from '../../../src/impl/dependency/ShrinkImpl';
 const $$ =new TestContext();

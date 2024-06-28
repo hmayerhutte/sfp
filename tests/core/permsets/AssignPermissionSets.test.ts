@@ -3,7 +3,7 @@ import AssignPermissionSetsImpl from '../../../src/core/permsets/AssignPermissio
 import { jest, expect } from '@jest/globals';
 import { VoidLogger } from '@flxbl-io/sfp-logger';
 import { AuthInfo, Connection, OrgConfigProperties } from '@salesforce/core';
-import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
+import { MockTestOrgData, TestContext } from '../../../node_modules/@salesforce/core/lib/testSetup';
 
 const $$ = new TestContext();
 

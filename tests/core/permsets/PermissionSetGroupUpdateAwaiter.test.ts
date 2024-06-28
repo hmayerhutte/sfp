@@ -1,4 +1,4 @@
-import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
+import { MockTestOrgData, TestContext } from '../../../node_modules/@salesforce/core/lib/testSetup';
 import { AuthInfo, Connection, OrgConfigProperties } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 const $$ = new TestContext();

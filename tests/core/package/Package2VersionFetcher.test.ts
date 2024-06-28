@@ -1,5 +1,5 @@
 import { expect } from '@jest/globals';
-import { MockTestOrgData, TestContext } from '@salesforce/core/testSetup';
+import { MockTestOrgData, TestContext } from '../../../node_modules/@salesforce/core/lib/testSetup';
 import { Connection, AuthInfo } from '@salesforce/core';
 import Package2VersionFetcher from '../../../src/core/package/version/Package2VersionFetcher';
 import { AnyJson } from '@salesforce/ts-types';
