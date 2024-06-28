@@ -83,10 +83,83 @@ To debug and test plugin
  npm link
 ```
 
+...
+...
+
+## Building and Testing sfp in Isolation
+
+To ensure consistent and reproducible builds and tests of sfp across different environments, you can leverage Docker to create an isolated container. Assuming you have a `Dockerfile` set up in the sfp package directory, follow these steps:
+
+1. Build the Docker image:
+
+   ```
+   docker build -t sfp .
+   ```
+
+   This command will build a Docker image tagged as `sfp` using the `Dockerfile` in the current directory.
+
+2. Run the Docker container:
+
+   ```
+   docker run -it --rm -v $(pwd):/usr/src/app sfp
+   ```
+
+   This command does the following:
+   - `-it`: Runs the container in interactive mode, allowing you to see the output and interact with the container if needed.
+   - `--rm`: Automatically removes the container when it exits.
+   - `-v $(pwd):/usr/src/app`: Mounts your current directory (the sfp package directory) to `/usr/src/app` inside the container. This allows you to work on the sfp package files locally while running the build and test processes inside the isolated container environment.
+   - `sfp`: Specifies the name of the Docker image to run.
+
+3. Inside the container, the `CMD` instruction defined in the `Dockerfile` will be executed, running sfp's tests and build process.
+
+4. The logs from both the test and build steps will be outputted to the console, allowing you to see the results and any potential issues.
+
+By running the tests and build process inside a Docker container, you ensure that sfp is built and tested in a consistent and isolated environment, regardless of the host machine's setup. This helps prevent issues related to different Node.js versions or system dependencies.
+
+If you want to run the tests and build separately or execute other npm scripts, you can override the default `CMD` instruction by specifying the command after the `docker run` command. For example:
+
+```
+docker run -it --rm -v $(pwd):/usr/src/app sfp npm test
+```
+
+This command will run only the `npm test` command inside the container.
+
+
+...
+
+To simplify building and testing the sfp package inside a Docker container, you can create aliases for the relevant commands. Open your shell configuration file (e.g., `~/.bashrc`, `~/.bash_profile`, or `~/.zshrc`) and add the following lines:
+
+```bash
+alias sfp-build="docker build --no-cache -t sfp ."
+alias sfp-test="docker run -it --rm -v $(pwd):/usr/src/app sfp 'npm test'"
+alias sfp="docker run -it --rm -v $(pwd):/usr/src/app sfp './bin/run'"
+```
+
+Save the file and reload the shell configuration by running the appropriate command (e.g., `source ~/.bashrc`, `source ~/.bash_profile`, or `source ~/.zshrc`).
+
+Now, you can easily build the sfp package and run the tests inside a Docker container using the defined aliases:
+
+1. Build the sfp package:
+   ```
+   sfp-build
+   ```
+   This command will build the Docker image tagged as `sfp-package` using the `Dockerfile` in the current directory. The `--no-cache` flag ensures that the image is always built from scratch, blowing up the previous image if it exists.
+
+2. Run the sfp tests:
+   ```
+   sfp-test
+   ```
+   This command will execute the `npm test` command inside the sfp Docker container, running the tests in an isolated environment.
+
+By using these aliases, you can quickly build the sfp package and run the tests within a Docker container, ensuring a clean and isolated environment every time.
+
+
+
+...
+
 #### Maintainers
 
 List of Maintainers are available in the [link](https://docs.flxbl.io/about-us)
-
 
 #### Where do I reach for queries?
 
