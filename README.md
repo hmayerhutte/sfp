@@ -130,7 +130,7 @@ This command will run only the `npm test` command inside the container.
 To simplify building and testing the sfp package inside a Docker container, you can create aliases for the relevant commands. Open your shell configuration file (e.g., `~/.bashrc`, `~/.bash_profile`, or `~/.zshrc`) and add the following lines:
 
 ```bash
-alias sfp-build="docker build --no-cache -t sfp ."
+alias sfp-build="docker build -t sfp ."
 alias sfp-test="docker run -it --rm -v $(pwd):/usr/src/app sfp 'npm test'"
 alias sfp="docker run -it --rm -v $(pwd):/usr/src/app sfp './bin/run'"
 ```
